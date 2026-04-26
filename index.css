@@ -1,0 +1,155 @@
+:root {
+  --bg: #0b0b0f;
+  --text: #ffffff;
+  --card: #111;
+}
+
+/* LIGHT MODE VARIABLES */
+.light {
+  --bg: #ffffff;
+  --text: #111111;
+  --card: #f3f3f3;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter';
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+}
+
+.search {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+}
+
+/* NAV BUTTON */
+.nav-links button {
+  margin: 0 5px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #666;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.nav-links button:hover {
+  background: var(--text);
+  color: var(--bg);
+  transform: scale(1.1);
+}
+
+/* RIGHT */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* DROPDOWN */
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: var(--card);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* HERO */
+.hero {
+  display: flex;
+  justify-content: space-between;
+  padding: 60px;
+}
+
+.left h1 {
+  font-size: 45px;
+}
+
+.highlight {
+  background: var(--text);
+  color: var(--bg);
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+/* STATS */
+.stat {
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.stat:hover {
+  transform: scale(1.2);
+  color: #00ffcc;
+}
+
+/* CENTER */
+.center {
+  position: relative;
+  width: 450px;
+  height: 450px;
+}
+
+.main-img {
+  position: absolute;
+  width: 220px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 20px;
+}
+
+/* CARDS */
+.cards img {
+  position: absolute;
+  width: 160px;
+  border-radius: 15px;
+}
+
+.c1 { transform: rotate(-30deg); top: 0; left: 140px;}
+.c2 { transform: rotate(-10deg); top: 120px; left: 0;}
+.c3 { transform: rotate(10deg); top: 120px; right: 0;}
+.c4 { transform: rotate(30deg); bottom: 0; left: 150px;}
+.c5 { top: 180px; left: 170px;}
+
+/* BUTTON */
+.btn {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+  background: #00ffcc;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--card);
+  padding: 40px;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer p:hover {
+  color: #00ffcc;
+}

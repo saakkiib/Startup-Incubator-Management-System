@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Incubator</title>
+
+<link rel="stylesheet" href="index.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body id="body">
+
+<header class="navbar">
+
+  <div class="logo">My Incubator</div>
+
+  <input class="search" placeholder="Search startups...">
+
+  <div class="nav-links">
+    <button onclick="goPage('register.html')">Register as a Team</button>
+    <button onclick="goPage('investors.html')">Our Investors</button>
+    <button onclick="goPage('guidelines.html')">All Guidelines</button>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="notify">🔔 <span>3</span></div>
+    <button class="mode-btn" onclick="toggleMode()">🌙</button>
+
+    <div class="profile-container">
+      <div class="profile" onclick="toggleDropdown()">Elen ▼</div>
+      <div class="dropdown" id="dropdown">
+        <p onclick="goPage('dashboard.html')">Dashboard</p>
+        <p>Profile</p>
+        <p>Settings</p>
+        <p onclick="logout()">Logout</p>
+      </div>
+    </div>
+  </div>
+
+</header>
+
+<section class="hero">
+
+  <div class="left">
+    <p class="tag">>>> Full Scale Incubator</p>
+
+    <h1>
+      We believe in a new <br>
+      Startup & <span class="highlight">business!</span>
+    </h1>
+
+    <div class="stats">
+      <div class="stat"><span>257</span> Manager & Mentors</div>
+      <div class="stat"><span>2k</span> Registered</div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+    <img src="https://picsum.photos/300" class="main-img">
+
+    <div class="cards">
+      <img src="https://picsum.photos/200?1" class="c1">
+      <img src="https://picsum.photos/200?2" class="c2">
+      <img src="https://picsum.photos/200?3" class="c3">
+      <img src="https://picsum.photos/200?4" class="c4">
+      <img src="https://picsum.photos/200?5" class="c5">
+    </div>
+
+    <div class="play">▶</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <h2 class="hover-stat">2k Investors</h2>
+    <h3 class="hover-stat">568 Startup</h3>
+
+    <button onclick="goPage('team.html')" class="btn">
+      Start a new team →
+    </button>
+  </div>
+
+</section>
+
+<footer class="footer">
+
+  <div class="footer-container">
+
+    <div>
+      <h3>My Incubator</h3>
+      <p>Empowering startups with mentors & investors.</p>
+    </div>
+
+    <div>
+      <h4>Quick Links</h4>
+      <p onclick="goPage('about.html')">About Us</p>
+      <p onclick="goPage('contact.html')">Contact</p>
+    </div>
+
+    <div>
+      <h4>Support</h4>
+      <p onclick="sendEmail()">Email: support@incubator.com</p>
+      <p onclick="callPhone()">Phone: +880 123456789</p>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 My Incubator
+  </div>
+
+</footer>
+
+<script src="index.js"></script>
+</body>
+</html>
