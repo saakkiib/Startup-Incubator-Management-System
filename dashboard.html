@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting - My Incubator</title>
+  <script src="roleDashboard.js"></script>
+  <script>
+    (async function routeDashboard() {
+      if (typeof isAuthDisabled === 'function' && isAuthDisabled()) {
+        window.location.href = 'dashboard-entrepreneur.html';
+        return;
+      }
+      try {
+        const res = await fetch('api/auth.php?action=me');
+        const data = await res.json();
+        if (data.status === 'success') {
+          window.location.href = getDashboardPathByRole(data.user.role);
+        } else {
+          window.location.href = 'auth.html';
+        }
+      } catch (e) {
+        window.location.href = 'auth.html';
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family: Arial, sans-serif; text-align: center; margin-top: 40px;">Redirecting to your dashboard...</p>
+</body>
+</html>
