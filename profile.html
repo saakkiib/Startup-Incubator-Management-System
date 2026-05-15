@@ -3,412 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Profile | My Incubator</title>
-    <link rel="stylesheet" href="index.css">
-    <script src="theme.js"></script>
+    <title>Profile | IncubatorX</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/index.css">
+
+    <!-- Theme Management Script (loaded in head to prevent flash) -->
+    <script src="js/theme.js"></script>
     <style>
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            margin: 0;
-            padding: 0;
+        body { background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+        .profile-container {
+            max-width: 1000px;
+            margin: 100px auto;
+            width: 100%;
+            padding: 0 40px;
         }
-
-        .profile-wrapper {
+        .profile-header {
             display: flex;
+            align-items: center;
             gap: 40px;
-            padding: 100px 40px 40px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 80vh;
-            align-items: flex-start;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease;
         }
-
-        /* Left Side: Input Fields */
-        .input-section {
-            width: 380px;
-            flex-shrink: 0;
-            background: var(--glass-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        .input-section h3 {
-            margin-bottom: 30px;
-            color: var(--primary);
-            font-size: 1.8rem;
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
             font-weight: 800;
-            letter-spacing: -1px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(20, 184, 166, 0.2);
         }
-
-        .form-group {
-            margin-bottom: 20px;
+        .profile-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
-
+        .form-group { margin-bottom: 25px; }
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            margin-bottom: 10px;
             font-weight: 700;
-            color: var(--text);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(var(--text-rgb), 0.03);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: inherit;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            border-color: var(--primary);
-            background: rgba(var(--text-rgb), 0.05);
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
-        }
-
-        /* Right Side: Live Card */
-        .preview-section {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            perspective: 1000px;
-        }
-
-        .live-card {
-            width: 420px;
-            background: var(--glass-card);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        .id-card {
-            border-top: 6px solid var(--primary);
-            background: linear-gradient(145deg, var(--glass-card), rgba(var(--primary-rgb), 0.02));
-        }
-
-        .id-top-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .id-brand {
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text);
-            opacity: 0.5;
-            font-weight: 800;
-        }
-
-        .role-badge {
-            font-size: 0.7rem;
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: rgba(20, 184, 166, 0.1);
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 800;
-            border: 1px solid rgba(20, 184, 166, 0.2);
-        }
-
-        .live-card:hover {
-            transform: translateY(-15px) rotateX(2deg);
-        }
-
-        .card-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 35px;
-        }
-
-        .card-photo {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 4px solid var(--primary);
-            object-fit: cover;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);
-            background: var(--bg);
-        }
-
-        .card-name {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--text);
-            text-align: center;
-            letter-spacing: -1px;
-            margin-bottom: 5px;
-        }
-
-        .card-role {
             font-size: 0.9rem;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 700;
+            opacity: 0.7;
         }
-
-        .card-body {
-            border-top: 1px solid var(--border);
-            padding-top: 30px;
-        }
-
-        .card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1rem;
-        }
-
-        .info-label {
-            color: var(--text);
-            opacity: 0.5;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-        }
-
-        .info-value {
-            color: var(--text);
-            font-weight: 700;
-            text-align: right;
-            max-width: 65%;
-            word-break: break-word;
-        }
-
-        .nid-value {
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 1px;
-            font-size: 0.95rem;
-            color: var(--primary);
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .status-none { background: rgba(var(--primary-rgb), 0.1); color: var(--primary); }
-        .status-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-        .status-approved { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-
-        .btn-update {
+        .form-group input {
             width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            border: none;
-            border-radius: 14px;
-            color: white;
-            font-weight: 800;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 25px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(20, 184, 166, 0.2);
-        }
-
-        .btn-update:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(20, 184, 166, 0.3);
-            background: var(--primary-light);
-        }
-
-        .btn-download {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            background: var(--glass-card);
             border: 1px solid var(--border);
-            background: transparent;
             color: var(--text);
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: all 0.3s;
+            outline: none;
+            font-weight: 600;
         }
-
-        .btn-download:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
-<header class="navbar">
-    <h2 style="cursor:pointer;" onclick="window.location.href='index.html'">My Incubator</h2>
-    <div class="right">
-        <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent; border:none; font-size:24px; cursor:pointer; transition: 0.3s;">☀️</button>
+    <header class="navbar">
+        <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
         <div class="nav-links">
-            <button onclick="window.location.href='index.html'">Home</button>
+            <button onclick="window.location.href='dashboard.html'">📊 Dashboard</button>
+            <button onclick="toggleTheme()" id="theme-toggle">☀️</button>
         </div>
-    </div>
-</header>
+    </header>
 
-<div class="profile-wrapper">
-    <!-- Left Section: Inputs -->
-    <div class="input-section">
-        <h3>Edit Profile</h3>
-        <form id="profile-form">
-            <div class="form-group">
-                <label>Profile Photo</label>
-                <input type="file" id="photo-input" name="photo" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Age</label>
-                <input type="number" id="age-input" name="age" placeholder="25">
-            </div>
-            <div class="form-group">
-                <label>Contact No</label>
-                <input type="text" id="contact-input" name="contact_no" placeholder="+880...">
-            </div>
-            <div class="form-group">
-                <label>Sex</label>
-                <input type="text" id="sex-input" name="sex" placeholder="Male / Female / Other">
-            </div>
-            <div class="form-group">
-                <label>NID No</label>
-                <input type="text" id="nid-input" name="nid_no" placeholder="National ID Number">
-            </div>
-            <div class="form-group">
-                <label>Degree</label>
-                <input type="text" id="degree-input" name="degree" placeholder="B.Sc in CS">
-            </div>
-            <div class="form-group">
-                <label>Address</label>
-                <textarea id="address-input" name="address" rows="3" placeholder="Dhaka, Bangladesh"></textarea>
-            </div>
-            
-            <button type="submit" id="update-btn" class="btn-update">Save Permanent</button>
-            <button type="button" id="request-btn" class="btn-request hidden">Request Admin to Edit</button>
-        </form>
-        <p id="profile-msg"></p>
-    </div>
-
-    <!-- Right Section: Live Previews -->
-    <div class="preview-section" style="flex-direction: column; gap: 30px;">
-        <!-- User Card -->
-        <div class="live-card id-card">
-            <div class="id-top-row">
-                <div class="id-brand">My Incubator ID</div>
-                <div id="card-role-badge" class="role-badge">USER</div>
-            </div>
-            <div id="status-badge" class="status-badge status-none">Initial</div>
-            <div class="card-header">
-                <img id="card-photo" src="https://via.placeholder.com/150" alt="Avatar" class="card-photo">
-                <div id="card-name" class="card-name">User Name</div>
-                <div id="card-role" class="card-role">Role</div>
-            </div>
-            <div class="card-body">
-                <div class="card-info">
-                    <div class="info-item">
-                        <span class="info-label">Age</span>
-                        <span id="card-age" class="info-value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Contact</span>
-                        <span id="card-contact" class="info-value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Sex</span>
-                        <span id="card-sex" class="info-value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">NID</span>
-                        <span id="card-nid" class="info-value nid-value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Degree</span>
-                        <span id="card-degree" class="info-value">-</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Address</span>
-                        <span id="card-address" class="info-value">-</span>
-                    </div>
-                </div>
-            </div>
-            <div class="download-actions">
-                <button type="button" class="btn-download" onclick="downloadCardPNG()">Download PNG</button>
-                <button type="button" class="btn-download" onclick="downloadCardPDF()">Download PDF</button>
+    <main class="profile-container">
+        <div class="profile-header">
+            <div class="profile-pic" id="profile-initials">JS</div>
+            <div>
+                <h1 id="user-display-name" style="font-size: 2.5rem; margin-bottom: 5px;">John Doe</h1>
+                <p id="user-role-badge" style="color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">Startup Founder</p>
             </div>
         </div>
 
-        <!-- Project Card -->
-        <div id="project-card" class="live-card hidden" style="width: 450px;">
-            <div class="card-header" style="align-items: flex-start; margin-bottom: 20px;">
-                <div style="font-size: 0.8rem; color: var(--primary); text-transform: uppercase;">Active Project</div>
-                <h3 id="p-title" style="margin: 5px 0; font-size: 1.5rem;">Project Title</h3>
-                <span id="p-status" class="status-badge status-approved" style="position: static; margin-top: 5px;">Approved</span>
-            </div>
-            <div class="card-body">
-                <div class="progress-container" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
-                        <span>Completion Progress</span>
-                        <span id="p-progress-text">65%</span>
+        <div class="glass" style="padding: 50px; border-radius: 40px;">
+            <h3 style="margin-bottom: 30px; font-size: 1.5rem;">Global Identity Settings</h3>
+            <form id="profile-form">
+                <div class="profile-form-grid">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="full-name" placeholder="Your Name">
                     </div>
-                    <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px;">
-                        <div id="p-progress-bar" style="width: 65%; height: 100%; background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary);"></div>
+                    <div class="form-group">
+                        <label>Email (Verified)</label>
+                        <input type="email" id="email" disabled>
                     </div>
-                </div>
-                <div class="card-info">
-                    <div class="info-item">
-                        <span class="info-label">Mentor</span>
-                        <span id="p-mentor" class="info-value">Mentor Name</span>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="phone" placeholder="+1 (555) 000-0000">
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Investors</span>
-                        <span id="p-investors" class="info-value" style="text-align: right;">Investor A, Investor B</span>
+                    <div class="form-group">
+                        <label>User Role</label>
+                        <input type="text" id="role-display" disabled>
                     </div>
                 </div>
-            </div>
+                
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                    <button type="submit" class="btn arrow-btn" style="padding: 15px 40px;">
+                        Save Identity <span class="arrows"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
-</div>
+    </main>
 
-<script src="roleDashboard.js"></script>
-<script src="profile.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script>
+        /**
+         * Profile Page Logic
+         * ------------------
+         * 1. Redirect to login if no active session
+         * 2. Pre-fill all form fields from the stored user object
+         * 3. On form submit, PUT the updated data to the backend API
+         * 4. Save the updated user back to localStorage and reload
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            // If no user in session, redirect to auth page
+            if (!user) { window.location.href = 'auth.html'; return; }
+
+            // ── Populate the UI with current user data ───────────────────────
+
+            document.getElementById('user-display-name').innerText = user.fullName || user.username;
+            document.getElementById('user-role-badge').innerText   = user.role;
+            document.getElementById('full-name').value             = user.fullName || '';
+            document.getElementById('email').value                 = user.email;
+            document.getElementById('phone').value                 = user.phone || '';
+            document.getElementById('role-display').value          = user.role;
+
+            // Show the user's initials inside the avatar circle
+            document.getElementById('profile-initials').innerText =
+                (user.fullName || user.username).substring(0, 2).toUpperCase();
+
+            // ── Handle Profile Update Form ───────────────────────────────────
+
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default page refresh
+
+                const updatedUser = {
+                    fullName: document.getElementById('full-name').value,
+                    phone:    document.getElementById('phone').value
+                };
+
+                try {
+                    // Send updated data to the backend via PUT request
+                    const res = await fetch(`http://localhost:8080/api/users/${user.id}`, {
+                        method:  'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body:    JSON.stringify(updatedUser)
+                    });
+
+                    if (res.ok) {
+                        const savedUser = await res.json();
+                        // Update the session in localStorage with the latest data
+                        localStorage.setItem('user', JSON.stringify(savedUser));
+                        alert('Profile updated successfully!');
+                        window.location.reload(); // Reload to reflect changes
+                    }
+                } catch (error) {
+                    console.error('Profile update error:', error);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

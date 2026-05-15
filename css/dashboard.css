@@ -34,12 +34,12 @@
   border-radius: 10px;
   cursor: pointer;
   transition: 0.3s;
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.05);
 }
 
 .sidebar li:hover, .sidebar li.active {
-  background: #00ffcc;
-  color: black;
+  background: var(--primary);
+  color: white;
   font-weight: bold;
 }
 
@@ -67,13 +67,13 @@
 
 .project-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 255, 204, 0.15);
-  border-color: rgba(0, 255, 204, 0.4);
+  box-shadow: 0 10px 25px rgba(20, 184, 166, 0.15);
+  border-color: var(--primary);
 }
 
 .project-card h3 {
   margin-top: 0;
-  color: #00ffcc;
+  color: var(--primary);
 }
 
 .status-badge {
@@ -85,21 +85,22 @@
 }
 
 .status-pending { background: #ffa500; color: black; }
-.status-approved { background: #00ffcc; color: black; }
-.status-rejected { background: #ff4d4d; color: white; }
+.status-approved { background: #10b981; color: white; }
+.status-rejected { background: #ef4444; color: white; }
 
 .action-btn {
   padding: 8px 15px;
   border-radius: 10px;
   border: none;
-  background: white;
-  color: black;
+  background: var(--primary);
+  color: white;
   cursor: pointer;
   font-weight: bold;
   margin-right: 10px;
 }
-.action-btn.invest { background: #00ffcc; }
-.action-btn.reject { background: #ff4d4d; color: white; }
+.action-btn:hover {
+  transform: scale(1.05);
+}
 
 /* MODAL */
 .modal {
@@ -114,21 +115,9 @@
 
 .modal-content {
   position: relative;
-  background: #1a1a24;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--dropdown-bg);
+  border: 1px solid var(--border);
   padding: 30px;
   border-radius: 20px;
-}
-
-.close {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 24px;
-  cursor: pointer;
-  color: #aaa;
-}
-
-.close:hover {
-  color: white;
+  backdrop-filter: blur(20px);
 }
