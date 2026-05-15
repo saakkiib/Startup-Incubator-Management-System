@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Authentication - My Incubator</title>
+  <title>Authentication - IncubatorX</title>
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="auth.css">
   <script src="theme.js"></script>
@@ -28,15 +28,15 @@
 
     <!-- Register Form -->
     <form id="form-register" class="hidden" onsubmit="handleRegister(event)">
-      <h2>Join Incubator</h2>
+      <h2>Join IncubatorX</h2>
       <input type="text" id="reg-name" placeholder="Full Name" required>
       <input type="email" id="reg-email" placeholder="Email" required>
       <input type="password" id="reg-password" placeholder="Password" required>
       <select id="reg-role" required>
         <option value="" disabled selected>Select Role</option>
-        <option value="fresher">Fresher / Entrepreneur</option>
-        <option value="investor">Investor</option>
-        <option value="mentor">Mentor</option>
+        <option value="STUDENT">Student Entrepreneur</option>
+        <option value="INVESTOR">Venture Investor</option>
+        <option value="MENTOR">Industry Mentor</option>
       </select>
       <button type="submit" class="btn auth-btn">Register</button>
     </form>
@@ -46,7 +46,6 @@
   </div>
 </div>
 
-<script src="roleDashboard.js"></script>
 <script src="auth.js"></script>
 </body>
 </html>

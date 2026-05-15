@@ -86,7 +86,7 @@ input, select {
 
 input:focus, select:focus {
   outline: none;
-  border-color: #00ffcc;
+  border-color: var(--primary);
 }
 
 select option {
@@ -109,6 +109,7 @@ select option {
 
 .auth-btn:hover {
   background: white;
+  color: var(--primary);
   transform: translateY(-2px);
 }
 
@@ -135,5 +136,5 @@ select option {
 }
 
 .back-link:hover {
-  color: white;
+  color: var(--primary);
 }

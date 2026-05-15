@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Incubator</title>
+<title>IncubatorX | Fueling Innovation</title>
 <link rel="stylesheet" href="index.css">
 <script src="theme.js"></script>
 </head>
@@ -10,32 +10,40 @@
 <body id="body">
 
 <header class="navbar">
-  <h2>My Incubator</h2>
+  <h2>IncubatorX</h2>
 
   <input class="search" placeholder="Search startups...">
 
   <div class="nav-links">
-    <button onclick="handleNav('register')">Register as a Team</button>
-    <button onclick="handleNav('investors')">Our Investors</button>
-    <button onclick="handleNav('guidelines')">All Guidelines</button>
+    <button onclick="window.location.href='auth.html?mode=register'">Register as a Team</button>
+    <button onclick="openPopup('investors', event)">Our Investors</button>
+    <button onclick="openPopup('guidelines', event)">Guidelines</button>
   </div>
 
   <div class="right">
-    <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent; border:none; font-size:24px; cursor:pointer;">☀️</button>
+    <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
     <div id="auth-links" class="nav-links" style="display:flex; align-items:center; gap:10px;">
-      <div class="notify">🔔 <span>3</span></div>
+      <div id="notif-container" class="notify" onclick="toggleNotifications(event)" style="display: none;">
+        🔔 <span id="notif-count">0</span>
+        <div id="notif-dropdown" class="dropdown glass" style="right: 0; top: 40px; width: 300px; padding: 20px;">
+          <h4 style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Notifications</h4>
+          <div id="notif-list">
+            <!-- Dynamic notifications -->
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="profile-container">
-      <div class="profile" id="profile-icon-wrapper" onclick="toggleDropdown()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid transparent;">
+      <div class="profile" id="profile-icon-wrapper" onclick="toggleDropdown(event)" style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid transparent;">
         <span id="profile-emoji" style="font-size: 24px;">👤</span>
         <img id="profile-img" style="display: none; width: 100%; height: 100%; object-fit: cover;">
       </div>
 
       <div class="dropdown" id="dropdown">
         <!-- Logged Out State -->
-        <p onclick="window.location.href='auth.html?tab=login'" id="nav-login">🔑 Login</p>
-        <p onclick="window.location.href='auth.html?tab=register'" id="nav-signup">📝 Signup</p>
+        <p onclick="window.location.href='auth.html'" id="nav-login">🔑 Login</p>
+        <p onclick="window.location.href='auth.html?mode=register'" id="nav-signup">📝 Signup</p>
 
         <!-- Logged In State -->
         <p onclick="window.location.href='profile.html'" id="nav-profile" style="display:none;">👤 Profile</p>
@@ -61,43 +69,33 @@
     </p>
 
     <div class="stats" style="display:flex; gap:30px; margin-top:40px;">
-      <div class="stat" onclick="handleNav('mentors')"><span>250+</span> <br> <small style="font-size: 0.9rem; color: #64748b;">Global Mentors</small></div>
-      <div class="stat" onclick="handleNav('registered')"><span>2k+</span> <br> <small style="font-size: 0.9rem; color: #64748b;">Active Startups</small></div>
+      <div class="stat"><span>250+</span> <br> <small style="font-size: 0.9rem; color: #64748b;">Global Mentors</small></div>
+      <div class="stat"><span>2k+</span> <br> <small style="font-size: 0.9rem; color: #64748b;">Active Startups</small></div>
     </div>
     
     <div style="display: flex; align-items: center; gap: 10px; margin-top: 60px; position: relative;">
-      <button class="btn arrow-btn pos-up" onclick="handleNav('register')" style="padding: 15px 40px; font-size: 1.1rem; margin-top: 0; z-index: 2;">
-        Launch Your Idea <span class="arrows"><span>></span><span>></span><span>></span></span>
+      <button class="btn arrow-btn pos-up" onclick="window.location.href='auth.html?mode=register'" style="padding: 15px 40px; font-size: 1.1rem; margin-top: 0; z-index: 2;">
+        Launch Your Idea <span class="arrows"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
       </button>
       
       <div style="width: 60px; display: flex; justify-content: center; align-items: center; position: relative;">
          <span style="font-weight: 900; font-style: italic; color: var(--primary); opacity: 0.1; font-size: 12rem; position: absolute; z-index: 0; pointer-events: none; letter-spacing: -10px;">or</span>
       </div>
       
-      <button class="btn arrow-btn pos-down" onclick="handleNav('mentors')" style="padding: 15px 40px; font-size: 1.1rem; margin-top: 0; z-index: 2;">
-        Collaborate Now <span class="arrows"><span>></span><span>></span><span>></span></span>
+      <button class="btn arrow-btn pos-down" onclick="window.location.href='auth.html'" style="padding: 15px 40px; font-size: 1.1rem; margin-top: 0; z-index: 2;">
+        Collaborate Now <span class="arrows"><span>&gt;</span><span>&gt;</span><span>&gt;</span></span>
       </button>
     </div>
   </div>
 
   <!-- CENTER -->
   <div class="center">
-
-    <img class="main-img" id="mainImg">
-
-    <div class="cards">
-      <img class="card">
-      <img class="card">
-      <img class="card">
-      <img class="card">
-      <img class="card">
-      <img class="card">
+    <img class="main-img" id="mainImg" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80">
+    <div class="cards" id="dynamic-cards">
+      <!-- Dynamic cards will be injected here -->
     </div>
-
   </div>
 
-  <!-- Divider removed for cleaner look or changed to subtle line -->
-  
   <div class="right-panel stats-list">
     <div class="stat-item">
         <h2>$12M+</h2>
@@ -113,13 +111,12 @@
     </div>
   </div>
 
-  <!-- Scroll Hint -->
   <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 1.5rem; animation: bounce 2s infinite; opacity: 0.5;">
     ↓
   </div>
 </section>
 
-<section class="features-grid" style="padding: 0 80px 80px 80px; background: transparent; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: -60px; position: relative; z-index: 10;">
+<section id="features" class="features-grid" style="padding: 0 80px 80px 80px; background: transparent; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: -60px; position: relative; z-index: 10;">
     <div class="glass" style="padding: 40px; border-radius: 24px; transition: 0.3s; border-top: 4px solid var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.15);" onmouseover="this.style.transform='translateY(-15px)'" onmouseout="this.style.transform='translateY(0)'">
         <div style="font-size: 3rem; margin-bottom: 20px;">🚀</div>
         <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Rapid Growth</h3>
@@ -140,16 +137,14 @@
 <footer class="footer">
   <div class="footer-container">
     <div>
-      <h3>My Incubator</h3>
+      <h3>IncubatorX</h3>
       <p>Empowering startups with mentors & investors.</p>
     </div>
-
     <div>
       <h4>Quick Links</h4>
-      <p class="footer-link" onclick="openPopup('about')">About Us</p>
-      <p class="footer-link" onclick="openPopup('contact')">Contact</p>
+      <p class="footer-link">About Us</p>
+      <p class="footer-link">Contact</p>
     </div>
-
     <div>
       <h4>Support</h4>
       <p>Email: <a href="mailto:sakib@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;" class="footer-link">sakib@gmail.com</a></p>
@@ -167,7 +162,6 @@
   </div>
 </div>
 
-<script src="roleDashboard.js"></script>
 <script src="index.js"></script>
 </body>
 </html>
