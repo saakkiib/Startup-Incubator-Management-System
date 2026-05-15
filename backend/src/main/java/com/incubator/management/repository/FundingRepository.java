@@ -8,8 +8,24 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Funding Repository
+ * ------------------
+ * Provides database access for the Funding entity.
+ * JpaRepository gives standard CRUD methods out of the box.
+ */
 @Repository
 public interface FundingRepository extends JpaRepository<Funding, Long> {
+
+    /**
+     * Get all funding records for a specific startup.
+     * Shows the complete investment history for that startup.
+     */
     List<Funding> findByStartup(Startup startup);
+
+    /**
+     * Get all investments made by a specific investor.
+     * Used on the investor dashboard to show their portfolio.
+     */
     List<Funding> findByInvestor(User investor);
 }

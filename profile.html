@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | IncubatorX</title>
-    <link rel="stylesheet" href="index.css">
-    <script src="theme.js"></script>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/index.css">
+
+    <!-- Theme Management Script (loaded in head to prevent flash) -->
+    <script src="js/theme.js"></script>
     <style>
         body { background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
         .profile-container {
@@ -110,39 +113,60 @@
     </main>
 
     <script>
+        /**
+         * Profile Page Logic
+         * ------------------
+         * 1. Redirect to login if no active session
+         * 2. Pre-fill all form fields from the stored user object
+         * 3. On form submit, PUT the updated data to the backend API
+         * 4. Save the updated user back to localStorage and reload
+         */
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user'));
+
+            // If no user in session, redirect to auth page
             if (!user) { window.location.href = 'auth.html'; return; }
 
+            // ── Populate the UI with current user data ───────────────────────
+
             document.getElementById('user-display-name').innerText = user.fullName || user.username;
-            document.getElementById('user-role-badge').innerText = user.role;
-            document.getElementById('full-name').value = user.fullName || '';
-            document.getElementById('email').value = user.email;
-            document.getElementById('phone').value = user.phone || '';
-            document.getElementById('role-display').value = user.role;
-            document.getElementById('profile-initials').innerText = (user.fullName || user.username).substring(0, 2).toUpperCase();
+            document.getElementById('user-role-badge').innerText   = user.role;
+            document.getElementById('full-name').value             = user.fullName || '';
+            document.getElementById('email').value                 = user.email;
+            document.getElementById('phone').value                 = user.phone || '';
+            document.getElementById('role-display').value          = user.role;
+
+            // Show the user's initials inside the avatar circle
+            document.getElementById('profile-initials').innerText =
+                (user.fullName || user.username).substring(0, 2).toUpperCase();
+
+            // ── Handle Profile Update Form ───────────────────────────────────
 
             document.getElementById('profile-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Prevent default page refresh
+
                 const updatedUser = {
                     fullName: document.getElementById('full-name').value,
-                    phone: document.getElementById('phone').value
+                    phone:    document.getElementById('phone').value
                 };
 
                 try {
+                    // Send updated data to the backend via PUT request
                     const res = await fetch(`http://localhost:8080/api/users/${user.id}`, {
-                        method: 'PUT',
+                        method:  'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedUser)
+                        body:    JSON.stringify(updatedUser)
                     });
+
                     if (res.ok) {
                         const savedUser = await res.json();
+                        // Update the session in localStorage with the latest data
                         localStorage.setItem('user', JSON.stringify(savedUser));
-                        alert('Identity updated successfully!');
-                        window.location.reload();
+                        alert('Profile updated successfully!');
+                        window.location.reload(); // Reload to reflect changes
                     }
                 } catch (error) {
-                    console.error('Update error:', error);
+                    console.error('Profile update error:', error);
                 }
             });
         });

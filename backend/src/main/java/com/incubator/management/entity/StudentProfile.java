@@ -6,6 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * StudentProfile Entity
+ * ----------------------
+ * Maps to the "student_profiles" table.
+ * Extends the base User with student-specific details.
+ * Created automatically (blank) when a user registers as STUDENT.
+ */
 @Entity
 @Table(name = "student_profiles")
 @Data
@@ -21,14 +28,15 @@ public class StudentProfile {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user;              // The student user this profile belongs to
 
-    private String university;
-    private String department;
-    
+    private String university;      // Name of the student's university
+
+    private String department;      // Department or faculty (e.g. "Computer Science")
+
     @Column(name = "batch_year")
-    private Integer batchYear;
+    private Integer batchYear;      // Graduation year (e.g. 2025)
 
     @Column(columnDefinition = "TEXT")
-    private String bio;
+    private String bio;             // A short bio or introduction written by the student
 }
