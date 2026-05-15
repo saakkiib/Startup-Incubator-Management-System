@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - My Incubator</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="auth.css">
+  <script src="theme.js"></script>
+</head>
+<body id="body" data-expected-role="admin">
+<header class="navbar">
+  <h2>My Incubator - Admin Dashboard</h2>
+  <div class="right">
+    <button id="theme-toggle" onclick="toggleTheme()" style="background:transparent; border:none; font-size:24px; cursor:pointer;">☀️</button>
+    <div class="profile-container">
+      <div class="profile" onclick="toggleDropdown()" style="cursor:pointer;display:flex;align-items:center;gap:5px;">
+        <span id="nav-user-name"></span>
+        <img id="nav-profile-img" src="" alt="Profile" style="display:none;width:30px;height:30px;border-radius:50%;object-fit:cover;">
+        <span>👤</span>
+      </div>
+      <div class="dropdown" id="dropdown">
+        <p onclick="window.location.href='profile.html'">Profile</p>
+        <p onclick="handleLogout()">Logout</p>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="nav-links" style="margin: 10px 0; text-align:center;">
+  <button onclick="window.location.href='index.html'" class="btn">← Back to Home</button>
+</div>
+<div class="dashboard-container">
+  <aside class="sidebar glass">
+    <h3 id="role-title">Loading...</h3>
+    <ul id="sidebar-nav"></ul>
+  </aside>
+  <main class="main-content">
+    <div id="content-area" class="glass content-box">
+      <h2>Loading dashboard...</h2>
+    </div>
+  </main>
+</div>
+<div id="project-modal" class="modal hidden">
+  <div class="modal-content glass" style="max-width: 400px; width: 100%;">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Submit New Project</h2>
+    <form id="form-project" onsubmit="submitProject(event)" style="display: flex; flex-direction: column; gap: 15px; margin-top:20px;">
+      <input type="text" id="proj-title" placeholder="Project Title" required style="padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white;">
+      <textarea id="proj-desc" placeholder="Project Description" rows="4" required style="padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; font-family:inherit;"></textarea>
+      <input type="number" id="proj-goal" placeholder="Funding Goal ($)" required style="padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white;">
+      <button type="submit" class="btn auth-btn" style="background:#00ffcc; color:black; font-weight:bold; padding:12px; border-radius:10px; border:none; cursor:pointer;">Submit Idea</button>
+    </form>
+    <p id="proj-error" class="error-msg"></p>
+  </div>
+</div>
+<script src="roleDashboard.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>
