@@ -2,8 +2,6 @@ package com.incubator.management.controller;
 
 import com.incubator.management.entity.PitchDocument;
 import com.incubator.management.service.PitchDocumentService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +19,14 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/documents")
-@RequiredArgsConstructor
 public class PitchDocumentController {
 
     private final PitchDocumentService documentService;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public PitchDocumentController(PitchDocumentService documentService) {
+        this.documentService = documentService;
+    }
 
     /**
      * Upload a pitch document for a startup.
@@ -51,16 +53,32 @@ public class PitchDocumentController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Inner Request DTO
+    // Inner Request DTO — with manual getters and setters
     // Used to deserialize the JSON body for the upload endpoint.
     // ─────────────────────────────────────────────────────────────────────────
-    @Data
     public static class DocumentRequest {
+
         private Long startupId;   // Which startup this document belongs to
         private Long userId;      // Who uploaded it
         private String fileName;  // Original file name
         private String filePath;  // Server-side storage path
         private String fileType;  // e.g. "pdf", "pptx"
         private Long fileSize;    // Size in bytes
+
+        // Getters
+        public Long getStartupId()    { return startupId; }
+        public Long getUserId()       { return userId; }
+        public String getFileName()   { return fileName; }
+        public String getFilePath()   { return filePath; }
+        public String getFileType()   { return fileType; }
+        public Long getFileSize()     { return fileSize; }
+
+        // Setters
+        public void setStartupId(Long startupId)    { this.startupId = startupId; }
+        public void setUserId(Long userId)          { this.userId = userId; }
+        public void setFileName(String fileName)    { this.fileName = fileName; }
+        public void setFilePath(String filePath)    { this.filePath = filePath; }
+        public void setFileType(String fileType)    { this.fileType = fileType; }
+        public void setFileSize(Long fileSize)      { this.fileSize = fileSize; }
     }
 }

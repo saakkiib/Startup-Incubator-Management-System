@@ -1,10 +1,6 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -18,10 +14,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "pitch_documents")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class PitchDocument {
 
     @Id
@@ -52,4 +44,103 @@ public class PitchDocument {
     @CreationTimestamp
     @Column(name = "uploaded_at", updatable = false)
     private LocalDateTime uploadedAt;     // When the document was uploaded
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public PitchDocument() {}
+
+    // All-args constructor for convenience
+    public PitchDocument(Long id, Startup startup, User uploadedBy, String fileName,
+                         String filePath, String fileType, Long fileSize,
+                         LocalDateTime uploadedAt) {
+        this.id = id;
+        this.startup = startup;
+        this.uploadedBy = uploadedBy;
+        this.fileName = fileName;
+        this.filePath = filePath;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
+        this.uploadedAt = uploadedAt;
+    }
+
+    // ─── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() {
+        return id;
+    }
+
+    public Startup getStartup() {
+        return startup;
+    }
+
+    public User getUploadedBy() {
+        return uploadedBy;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public String getFileType() {
+        return fileType;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setStartup(Startup startup) {
+        this.startup = startup;
+    }
+
+    public void setUploadedBy(User uploadedBy) {
+        this.uploadedBy = uploadedBy;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "PitchDocument{" +
+                "id=" + id +
+                ", fileName='" + fileName + '\'' +
+                ", fileType='" + fileType + '\'' +
+                ", fileSize=" + fileSize +
+                '}';
+    }
 }

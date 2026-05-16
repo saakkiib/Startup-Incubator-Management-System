@@ -3,9 +3,7 @@ package com.incubator.management.controller;
 import com.incubator.management.dto.LoginRequest;
 import com.incubator.management.dto.RegisterRequest;
 import com.incubator.management.dto.UserResponse;
-import com.incubator.management.entity.User;
 import com.incubator.management.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +20,16 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * Register a new user account.

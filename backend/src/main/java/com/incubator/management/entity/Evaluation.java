@@ -1,10 +1,6 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -18,10 +14,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "evaluations")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Evaluation {
 
     @Id
@@ -68,4 +60,139 @@ public class Evaluation {
     @CreationTimestamp
     @Column(name = "evaluated_at", updatable = false)
     private LocalDateTime evaluatedAt;    // Timestamp when the evaluation was submitted
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public Evaluation() {}
+
+    // All-args constructor for convenience
+    public Evaluation(Long id, Startup startup, User mentor,
+                      Integer technicalScore, Integer marketScore, Integer financialScore,
+                      Integer overallScore, String technicalFeedback, String marketFeedback,
+                      String financialFeedback, String recommendation, LocalDateTime evaluatedAt) {
+        this.id = id;
+        this.startup = startup;
+        this.mentor = mentor;
+        this.technicalScore = technicalScore;
+        this.marketScore = marketScore;
+        this.financialScore = financialScore;
+        this.overallScore = overallScore;
+        this.technicalFeedback = technicalFeedback;
+        this.marketFeedback = marketFeedback;
+        this.financialFeedback = financialFeedback;
+        this.recommendation = recommendation;
+        this.evaluatedAt = evaluatedAt;
+    }
+
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public Startup getStartup() {
+        return startup;
+    }
+
+    public User getMentor() {
+        return mentor;
+    }
+
+    public Integer getTechnicalScore() {
+        return technicalScore;
+    }
+
+    public Integer getMarketScore() {
+        return marketScore;
+    }
+
+    public Integer getFinancialScore() {
+        return financialScore;
+    }
+
+    public Integer getOverallScore() {
+        return overallScore;
+    }
+
+    public String getTechnicalFeedback() {
+        return technicalFeedback;
+    }
+
+    public String getMarketFeedback() {
+        return marketFeedback;
+    }
+
+    public String getFinancialFeedback() {
+        return financialFeedback;
+    }
+
+    public String getRecommendation() {
+        return recommendation;
+    }
+
+    public LocalDateTime getEvaluatedAt() {
+        return evaluatedAt;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setStartup(Startup startup) {
+        this.startup = startup;
+    }
+
+    public void setMentor(User mentor) {
+        this.mentor = mentor;
+    }
+
+    public void setTechnicalScore(Integer technicalScore) {
+        this.technicalScore = technicalScore;
+    }
+
+    public void setMarketScore(Integer marketScore) {
+        this.marketScore = marketScore;
+    }
+
+    public void setFinancialScore(Integer financialScore) {
+        this.financialScore = financialScore;
+    }
+
+    public void setOverallScore(Integer overallScore) {
+        this.overallScore = overallScore;
+    }
+
+    public void setTechnicalFeedback(String technicalFeedback) {
+        this.technicalFeedback = technicalFeedback;
+    }
+
+    public void setMarketFeedback(String marketFeedback) {
+        this.marketFeedback = marketFeedback;
+    }
+
+    public void setFinancialFeedback(String financialFeedback) {
+        this.financialFeedback = financialFeedback;
+    }
+
+    public void setRecommendation(String recommendation) {
+        this.recommendation = recommendation;
+    }
+
+    public void setEvaluatedAt(LocalDateTime evaluatedAt) {
+        this.evaluatedAt = evaluatedAt;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "Evaluation{" +
+                "id=" + id +
+                ", overallScore=" + overallScore +
+                ", recommendation='" + recommendation + '\'' +
+                '}';
+    }
 }

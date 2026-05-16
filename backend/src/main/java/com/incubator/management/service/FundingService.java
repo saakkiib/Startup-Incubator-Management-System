@@ -6,7 +6,6 @@ import com.incubator.management.entity.User;
 import com.incubator.management.repository.FundingRepository;
 import com.incubator.management.repository.StartupRepository;
 import com.incubator.management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,12 +19,20 @@ import java.util.List;
  * - Fetching all funding records for a given startup
  */
 @Service
-@RequiredArgsConstructor
 public class FundingService {
 
     private final FundingRepository fundingRepository;
     private final StartupRepository startupRepository;
     private final UserRepository userRepository;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public FundingService(FundingRepository fundingRepository,
+                          StartupRepository startupRepository,
+                          UserRepository userRepository) {
+        this.fundingRepository = fundingRepository;
+        this.startupRepository = startupRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Record a new funding deal and save it to the database.
@@ -39,21 +46,22 @@ public class FundingService {
      * @param type       Funding round type (e.g. "Seed", "Series A")
      * @param terms      Legal terms agreed upon
      */
-    public Funding createFunding(Long startupId, Long investorId, BigDecimal amount, BigDecimal equity, String type, String terms) {
+    public Funding createFunding(Long startupId, Long investorId, BigDecimal amount,
+                                 BigDecimal equity, String type, String terms) {
         Startup startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup not found"));
         User investor = userRepository.findById(investorId)
                 .orElseThrow(() -> new RuntimeException("Investor not found"));
 
-        Funding funding = Funding.builder()
-                .startup(startup)
-                .investor(investor)
-                .amount(amount)
-                .equityPercentage(equity)
-                .fundingType(type)
-                .terms(terms)
-                .status("completed") // Mark as completed immediately on creation
-                .build();
+        // Build Funding object using setters instead of @Builder
+        Funding funding = new Funding();
+        funding.setStartup(startup);
+        funding.setInvestor(investor);
+        funding.setAmount(amount);
+        funding.setEquityPercentage(equity);
+        funding.setFundingType(type);
+        funding.setTerms(terms);
+        funding.setStatus("completed"); // Mark as completed immediately on creation
 
         return fundingRepository.save(funding);
     }

@@ -2,8 +2,6 @@ package com.incubator.management.controller;
 
 import com.incubator.management.entity.MentorAssignment;
 import com.incubator.management.service.MentorAssignmentService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +19,14 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/mentor-assignments")
-@RequiredArgsConstructor
 public class MentorAssignmentController {
 
     private final MentorAssignmentService assignmentService;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public MentorAssignmentController(MentorAssignmentService assignmentService) {
+        this.assignmentService = assignmentService;
+    }
 
     /**
      * Assign a mentor to a startup.
@@ -49,14 +51,26 @@ public class MentorAssignmentController {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Inner Request DTO
+    // Inner Request DTO — with manual getters and setters
     // Used to receive assignment data from the request body.
     // ─────────────────────────────────────────────────────────────────────────
-    @Data
     public static class AssignmentRequest {
+
         private Long startupId; // The startup receiving the mentor
         private Long mentorId;  // The mentor being assigned
         private Long adminId;   // The admin performing the assignment
         private String notes;   // Optional notes about the assignment
+
+        // Getters
+        public Long getStartupId()  { return startupId; }
+        public Long getMentorId()   { return mentorId; }
+        public Long getAdminId()    { return adminId; }
+        public String getNotes()    { return notes; }
+
+        // Setters
+        public void setStartupId(Long startupId) { this.startupId = startupId; }
+        public void setMentorId(Long mentorId)   { this.mentorId = mentorId; }
+        public void setAdminId(Long adminId)     { this.adminId = adminId; }
+        public void setNotes(String notes)       { this.notes = notes; }
     }
 }

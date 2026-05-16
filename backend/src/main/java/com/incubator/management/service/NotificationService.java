@@ -4,7 +4,6 @@ import com.incubator.management.entity.Notification;
 import com.incubator.management.entity.User;
 import com.incubator.management.repository.NotificationRepository;
 import com.incubator.management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,11 +17,17 @@ import java.util.List;
  * - Marking a notification as read
  */
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public NotificationService(NotificationRepository notificationRepository,
+                               UserRepository userRepository) {
+        this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Create and save a new notification for a specific user.
@@ -35,18 +40,19 @@ public class NotificationService {
      * @param type      Notification category (e.g. "approval", "funding")
      * @param relatedId ID of the related entity (e.g. startupId, fundingId)
      */
-    public Notification createNotification(Long userId, String title, String message, String type, Long relatedId) {
+    public Notification createNotification(Long userId, String title, String message,
+                                           String type, Long relatedId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Notification notification = Notification.builder()
-                .user(user)
-                .title(title)
-                .message(message)
-                .type(type)
-                .relatedId(relatedId)
-                .isRead(false) // All new notifications start as unread
-                .build();
+        // Build Notification using setters instead of @Builder
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setType(type);
+        notification.setRelatedId(relatedId);
+        notification.setRead(false); // All new notifications start as unread
 
         return notificationRepository.save(notification);
     }

@@ -6,7 +6,6 @@ import com.incubator.management.entity.User;
 import com.incubator.management.repository.EvaluationRepository;
 import com.incubator.management.repository.StartupRepository;
 import com.incubator.management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +18,20 @@ import java.util.List;
  * - Fetching all evaluations for a given startup
  */
 @Service
-@RequiredArgsConstructor
 public class EvaluationService {
 
     private final EvaluationRepository evaluationRepository;
     private final StartupRepository startupRepository;
     private final UserRepository userRepository;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public EvaluationService(EvaluationRepository evaluationRepository,
+                             StartupRepository startupRepository,
+                             UserRepository userRepository) {
+        this.evaluationRepository = evaluationRepository;
+        this.startupRepository = startupRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Save a new evaluation to the database.

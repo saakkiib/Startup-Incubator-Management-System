@@ -1,15 +1,10 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * User Entity
@@ -24,10 +19,6 @@ import java.util.List;
  */
 @Entity
 @Table(name = "users")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -87,5 +78,153 @@ public class User {
         MENTOR,    // Industry experts who guide startups
         INVESTOR,  // Funders who invest in startups
         ADMIN      // Platform administrators with full access
+    }
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public User() {}
+
+    // All-args constructor for convenience
+    public User(Long id, String username, String email, String password,
+                Role role, String fullName, String phone, boolean isActive,
+                LocalDateTime createdAt, LocalDateTime updatedAt,
+                StudentProfile studentProfile, MentorProfile mentorProfile,
+                InvestorProfile investorProfile) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.fullName = fullName;
+        this.phone = phone;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.studentProfile = studentProfile;
+        this.mentorProfile = mentorProfile;
+        this.investorProfile = investorProfile;
+    }
+
+    // ─── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public StudentProfile getStudentProfile() {
+        return studentProfile;
+    }
+
+    public MentorProfile getMentorProfile() {
+        return mentorProfile;
+    }
+
+    public InvestorProfile getInvestorProfile() {
+        return investorProfile;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setStudentProfile(StudentProfile studentProfile) {
+        this.studentProfile = studentProfile;
+    }
+
+    public void setMentorProfile(MentorProfile mentorProfile) {
+        this.mentorProfile = mentorProfile;
+    }
+
+    public void setInvestorProfile(InvestorProfile investorProfile) {
+        this.investorProfile = investorProfile;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role=" + role +
+                ", fullName='" + fullName + '\'' +
+                ", isActive=" + isActive +
+                '}';
     }
 }

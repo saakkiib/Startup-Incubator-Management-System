@@ -1,10 +1,6 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
@@ -18,10 +14,6 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name = "investor_profiles")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class InvestorProfile {
 
     @Id
@@ -44,4 +36,85 @@ public class InvestorProfile {
 
     @Column(name = "max_investment")
     private BigDecimal maxInvestment;     // Maximum deal size the investor will consider (in USD)
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public InvestorProfile() {}
+
+    // All-args constructor for convenience
+    public InvestorProfile(Long id, User user, String firmName, String investmentFocus,
+                           BigDecimal minInvestment, BigDecimal maxInvestment) {
+        this.id = id;
+        this.user = user;
+        this.firmName = firmName;
+        this.investmentFocus = investmentFocus;
+        this.minInvestment = minInvestment;
+        this.maxInvestment = maxInvestment;
+    }
+
+    // ─── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getFirmName() {
+        return firmName;
+    }
+
+    public String getInvestmentFocus() {
+        return investmentFocus;
+    }
+
+    public BigDecimal getMinInvestment() {
+        return minInvestment;
+    }
+
+    public BigDecimal getMaxInvestment() {
+        return maxInvestment;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setFirmName(String firmName) {
+        this.firmName = firmName;
+    }
+
+    public void setInvestmentFocus(String investmentFocus) {
+        this.investmentFocus = investmentFocus;
+    }
+
+    public void setMinInvestment(BigDecimal minInvestment) {
+        this.minInvestment = minInvestment;
+    }
+
+    public void setMaxInvestment(BigDecimal maxInvestment) {
+        this.maxInvestment = maxInvestment;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "InvestorProfile{" +
+                "id=" + id +
+                ", firmName='" + firmName + '\'' +
+                ", investmentFocus='" + investmentFocus + '\'' +
+                ", minInvestment=" + minInvestment +
+                ", maxInvestment=" + maxInvestment +
+                '}';
+    }
 }

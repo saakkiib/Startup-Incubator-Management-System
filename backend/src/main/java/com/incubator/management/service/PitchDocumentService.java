@@ -6,7 +6,6 @@ import com.incubator.management.entity.User;
 import com.incubator.management.repository.PitchDocumentRepository;
 import com.incubator.management.repository.StartupRepository;
 import com.incubator.management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +18,20 @@ import java.util.List;
  * - Fetching all documents uploaded for a specific startup
  */
 @Service
-@RequiredArgsConstructor
 public class PitchDocumentService {
 
     private final PitchDocumentRepository documentRepository;
     private final StartupRepository startupRepository;
     private final UserRepository userRepository;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public PitchDocumentService(PitchDocumentRepository documentRepository,
+                                StartupRepository startupRepository,
+                                UserRepository userRepository) {
+        this.documentRepository = documentRepository;
+        this.startupRepository = startupRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Save a pitch document record to the database.
@@ -38,20 +45,21 @@ public class PitchDocumentService {
      * @param fileType  MIME type or extension (e.g. "pdf")
      * @param fileSize  Size of the file in bytes
      */
-    public PitchDocument uploadDocument(Long startupId, Long userId, String fileName, String filePath, String fileType, Long fileSize) {
+    public PitchDocument uploadDocument(Long startupId, Long userId, String fileName,
+                                        String filePath, String fileType, Long fileSize) {
         Startup startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup not found"));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        PitchDocument document = PitchDocument.builder()
-                .startup(startup)
-                .uploadedBy(user)
-                .fileName(fileName)
-                .filePath(filePath)
-                .fileType(fileType)
-                .fileSize(fileSize)
-                .build();
+        // Build PitchDocument using setters instead of @Builder
+        PitchDocument document = new PitchDocument();
+        document.setStartup(startup);
+        document.setUploadedBy(user);
+        document.setFileName(fileName);
+        document.setFilePath(filePath);
+        document.setFileType(fileType);
+        document.setFileSize(fileSize);
 
         return documentRepository.save(document);
     }

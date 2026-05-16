@@ -2,9 +2,11 @@ package com.incubator.management.service;
 
 import com.incubator.management.dto.RegisterRequest;
 import com.incubator.management.dto.UserResponse;
+import com.incubator.management.entity.InvestorProfile;
+import com.incubator.management.entity.MentorProfile;
+import com.incubator.management.entity.StudentProfile;
 import com.incubator.management.entity.User;
 import com.incubator.management.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,6 @@ import java.util.Optional;
  * - Converting User entities to UserResponse DTOs
  */
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
@@ -29,6 +30,19 @@ public class UserService {
     private final MentorProfileRepository mentorProfileRepository;
     private final InvestorProfileRepository investorProfileRepository;
     private final PasswordEncoder passwordEncoder;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public UserService(UserRepository userRepository,
+                       StudentProfileRepository studentProfileRepository,
+                       MentorProfileRepository mentorProfileRepository,
+                       InvestorProfileRepository investorProfileRepository,
+                       PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.studentProfileRepository = studentProfileRepository;
+        this.mentorProfileRepository = mentorProfileRepository;
+        this.investorProfileRepository = investorProfileRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * Register a new user in the system.
@@ -46,31 +60,32 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
-        // Build the new User object — password is hashed before saving
-        User user = User.builder()
-                .username(request.getName().toLowerCase().replace(" ", "_")) // e.g. "John Doe" → "john_doe"
-                .fullName(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))     // BCrypt hash for security
-                .role(request.getRole())
-                .isActive(true)
-                .build();
+        // Build the new User object using setters — password is hashed before saving
+        User user = new User();
+        user.setUsername(request.getName().toLowerCase().replace(" ", "_")); // e.g. "John Doe" → "john_doe"
+        user.setFullName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));     // BCrypt hash for security
+        user.setRole(request.getRole());
+        user.setActive(true);
 
         User savedUser = userRepository.save(user);
 
         // Create a blank profile matching the user's role — they can fill it in later
         if (savedUser.getRole() == User.Role.STUDENT) {
-            studentProfileRepository.save(
-                    com.incubator.management.entity.StudentProfile.builder().user(savedUser).build()
-            );
+            StudentProfile studentProfile = new StudentProfile();
+            studentProfile.setUser(savedUser);
+            studentProfileRepository.save(studentProfile);
+
         } else if (savedUser.getRole() == User.Role.MENTOR) {
-            mentorProfileRepository.save(
-                    com.incubator.management.entity.MentorProfile.builder().user(savedUser).build()
-            );
+            MentorProfile mentorProfile = new MentorProfile();
+            mentorProfile.setUser(savedUser);
+            mentorProfileRepository.save(mentorProfile);
+
         } else if (savedUser.getRole() == User.Role.INVESTOR) {
-            investorProfileRepository.save(
-                    com.incubator.management.entity.InvestorProfile.builder().user(savedUser).build()
-            );
+            InvestorProfile investorProfile = new InvestorProfile();
+            investorProfile.setUser(savedUser);
+            investorProfileRepository.save(investorProfile);
         }
 
         return mapToResponse(savedUser);
@@ -101,16 +116,17 @@ public class UserService {
     /**
      * Convert a User entity into a safe UserResponse DTO.
      * This ensures the password hash is NEVER sent back to the client.
+     * Uses setters instead of @Builder.
      */
     public UserResponse mapToResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .fullName(user.getFullName())
-                .phone(user.getPhone())
-                .isActive(user.isActive())
-                .build();
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setUsername(user.getUsername());
+        response.setEmail(user.getEmail());
+        response.setRole(user.getRole());
+        response.setFullName(user.getFullName());
+        response.setPhone(user.getPhone());
+        response.setActive(user.isActive());
+        return response;
     }
 }

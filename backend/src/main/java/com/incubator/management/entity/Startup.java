@@ -1,10 +1,6 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,10 +17,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "startups")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Startup {
 
     @Id
@@ -56,4 +48,113 @@ public class Startup {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;   // Timestamp of the last update to this record
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public Startup() {}
+
+    // All-args constructor for convenience
+    public Startup(Long id, User founder, String name, String description,
+                   String industry, String stage, String status,
+                   LocalDateTime submittedAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.founder = founder;
+        this.name = name;
+        this.description = description;
+        this.industry = industry;
+        this.stage = stage;
+        this.status = status;
+        this.submittedAt = submittedAt;
+        this.updatedAt = updatedAt;
+    }
+
+    // ─── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getFounder() {
+        return founder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setFounder(User founder) {
+        this.founder = founder;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "Startup{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", industry='" + industry + '\'' +
+                ", stage='" + stage + '\'' +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

@@ -6,7 +6,6 @@ import com.incubator.management.entity.User;
 import com.incubator.management.repository.MentorAssignmentRepository;
 import com.incubator.management.repository.StartupRepository;
 import com.incubator.management.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,12 +18,20 @@ import java.util.List;
  * - Fetching all assignments for a startup
  */
 @Service
-@RequiredArgsConstructor
 public class MentorAssignmentService {
 
     private final MentorAssignmentRepository assignmentRepository;
     private final StartupRepository startupRepository;
     private final UserRepository userRepository;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public MentorAssignmentService(MentorAssignmentRepository assignmentRepository,
+                                   StartupRepository startupRepository,
+                                   UserRepository userRepository) {
+        this.assignmentRepository = assignmentRepository;
+        this.startupRepository = startupRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Assign a mentor to a startup.
@@ -36,7 +43,8 @@ public class MentorAssignmentService {
      * @param adminId   The admin performing the assignment
      * @param notes     Optional notes about the assignment
      */
-    public MentorAssignment assignMentor(Long startupId, Long mentorId, Long adminId, String notes) {
+    public MentorAssignment assignMentor(Long startupId, Long mentorId,
+                                         Long adminId, String notes) {
         Startup startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup not found"));
         User mentor = userRepository.findById(mentorId)
@@ -44,13 +52,13 @@ public class MentorAssignmentService {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        MentorAssignment assignment = MentorAssignment.builder()
-                .startup(startup)
-                .mentor(mentor)
-                .assignedBy(admin)
-                .notes(notes)
-                .status("active") // Default status when first assigned
-                .build();
+        // Build MentorAssignment using setters instead of @Builder
+        MentorAssignment assignment = new MentorAssignment();
+        assignment.setStartup(startup);
+        assignment.setMentor(mentor);
+        assignment.setAssignedBy(admin);
+        assignment.setNotes(notes);
+        assignment.setStatus("active"); // Default status when first assigned
 
         return assignmentRepository.save(assignment);
     }

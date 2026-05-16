@@ -3,7 +3,6 @@ package com.incubator.management.controller;
 import com.incubator.management.dto.StartupRequest;
 import com.incubator.management.dto.StartupResponse;
 import com.incubator.management.service.StartupService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,16 +15,20 @@ import java.util.List;
  * Base URL: /api/startups
  *
  * Endpoints:
- *   POST /api/startups            → Create a new startup
- *   GET  /api/startups            → Fetch all startups
+ *   POST /api/startups              → Create a new startup
+ *   GET  /api/startups              → Fetch all startups
  *   PUT  /api/startups/{id}/approve → Approve a startup (Admin/Mentor)
  */
 @RestController
 @RequestMapping("/api/startups")
-@RequiredArgsConstructor
 public class StartupController {
 
     private final StartupService startupService;
+
+    // Constructor injection — replaces Lombok @RequiredArgsConstructor
+    public StartupController(StartupService startupService) {
+        this.startupService = startupService;
+    }
 
     /**
      * Create a new startup submission.

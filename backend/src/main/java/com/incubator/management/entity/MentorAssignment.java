@@ -1,10 +1,6 @@
 package com.incubator.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -18,10 +14,6 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "mentor_assignments")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class MentorAssignment {
 
     @Id
@@ -49,4 +41,91 @@ public class MentorAssignment {
 
     @Column(columnDefinition = "TEXT")
     private String notes;                 // Optional admin notes about the assignment
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    // Default (no-arg) constructor — required by JPA
+    public MentorAssignment() {}
+
+    // All-args constructor for convenience
+    public MentorAssignment(Long id, Startup startup, User mentor, User assignedBy,
+                            LocalDateTime assignedAt, String status, String notes) {
+        this.id = id;
+        this.startup = startup;
+        this.mentor = mentor;
+        this.assignedBy = assignedBy;
+        this.assignedAt = assignedAt;
+        this.status = status;
+        this.notes = notes;
+    }
+
+    // ─── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() {
+        return id;
+    }
+
+    public Startup getStartup() {
+        return startup;
+    }
+
+    public User getMentor() {
+        return mentor;
+    }
+
+    public User getAssignedBy() {
+        return assignedBy;
+    }
+
+    public LocalDateTime getAssignedAt() {
+        return assignedAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    // ─── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setStartup(Startup startup) {
+        this.startup = startup;
+    }
+
+    public void setMentor(User mentor) {
+        this.mentor = mentor;
+    }
+
+    public void setAssignedBy(User assignedBy) {
+        this.assignedBy = assignedBy;
+    }
+
+    public void setAssignedAt(LocalDateTime assignedAt) {
+        this.assignedAt = assignedAt;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    // ─── toString ─────────────────────────────────────────────────────────────
+
+    @Override
+    public String toString() {
+        return "MentorAssignment{" +
+                "id=" + id +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }
