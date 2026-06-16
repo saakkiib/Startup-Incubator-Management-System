@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Startup Progress - IncubatorX</title>
+  <link rel="stylesheet" href="css/entrepreneur.css">
+  <script src="js/auth-guard.js"></script>
+  <script>
+    const user = requireRole('STUDENT');
+  </script>
+</head>
+<body>
+  <header class="navbar">
+    <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div onclick="window.location.href='student-profile.html'" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <div id="nav-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">ES</div>
+        <span id="nav-user-name" style="font-weight:600;">Student Founder</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3>Entrepreneur Panel</h3>
+      <ul>
+        <li onclick="window.location.href='dashboard-entrepreneur.html'"><span>📊</span> Overview Dashboard</li>
+        <li onclick="window.location.href='submit-startup.html'"><span>🚀</span> Submit Startup</li>
+        <li onclick="window.location.href='my-startups.html'"><span>📋</span> My Startups</li>
+        <li onclick="window.location.href='upload-pitch.html'"><span>📤</span> Upload Pitch Document</li>
+        <li class="active" onclick="window.location.href='startup-progress.html'"><span>📈</span> Update Progress</li>
+        <li onclick="window.location.href='request-funding.html'"><span>💸</span> Request Funding</li>
+        <li onclick="window.location.href='funding-history.html'"><span>💰</span> View Funding History</li>
+        <li onclick="window.location.href='notifications.html'"><span>🔔</span> Notifications</li>
+        <li onclick="window.location.href='student-profile.html'"><span>👤</span> Profile</li>
+        <li onclick="handleLogout()"><span>🚪</span> Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box">
+        <!-- List View (default) -->
+        <div id="list-view">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+            <h2>📈 All Startups</h2>
+          </div>
+          <p style="color:#64748b; margin-bottom:30px;">
+            Click on a startup to update progress or view rejection details.
+          </p>
+          <div id="startup-list"></div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="detail-view" style="display:none;">
+          <button onclick="showListView()"
+            style="background:rgba(20,184,166,0.1);color:var(--primary);border:none;padding:10px 20px;
+                   border-radius:10px;cursor:pointer;font-weight:600;margin-bottom:25px;">
+            ← Back to All Startups
+          </button>
+
+          <h2 id="detail-title">📈 Update Startup Progress</h2>
+          <p id="detail-subtitle" style="color:#64748b; margin-bottom:30px;"></p>
+
+          <!-- Approved: progress tracking -->
+          <div id="approved-section" style="display:none;">
+            <!-- Current Progress Display -->
+            <div id="current-progress-section" style="margin-bottom:30px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-weight:600;">Current Progress</span>
+                <span id="current-pct" style="font-weight:800; color:var(--primary); font-size:1.1rem;">0%</span>
+              </div>
+              <div class="progress-bar" style="height:14px;">
+                <div class="progress-fill" id="current-fill" style="width:0%; transition:width 0.5s ease;"></div>
+              </div>
+            </div>
+
+            <!-- Development Stages -->
+            <div id="stages-section">
+              <h3 style="margin-bottom:20px; color:var(--primary);">Development Stages</h3>
+              <div class="progress-container" id="stages-list"></div>
+
+              <!-- Manual Slider -->
+              <div style="margin-top:30px; padding:24px; background:var(--glass-card);
+                   border:1px solid var(--border); border-radius:16px;">
+                <h4 style="margin-bottom:16px;">Or set a custom progress value:</h4>
+                <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                  <input type="range" id="progress-slider" min="0" max="100" value="0"
+                         oninput="updateSliderDisplay(this.value)"
+                         style="flex:1; accent-color:var(--primary); height:6px;">
+                  <div style="font-size:1.5rem; font-weight:800; color:var(--primary); min-width:60px;"
+                       id="slider-display">0%</div>
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <button id="save-progress-btn" class="submit-btn" style="margin-top:28px;"
+                      onclick="saveProgress()">
+                💾 Save Progress
+              </button>
+
+              <div id="save-message" style="display:none; margin-top:16px;"></div>
+            </div>
+          </div>
+
+          <!-- Rejected: rejection reason -->
+          <div id="rejected-section" style="display:none;">
+            <div style="padding:30px; background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2); border-radius:16px; text-align:center;">
+              <div style="font-size:3rem; margin-bottom:16px;">❌</div>
+              <h3 style="color:#ef4444; margin-bottom:12px;">Startup Rejected</h3>
+              <p style="color:#64748b; margin-bottom:8px;">Reason for rejection:</p>
+              <p id="rejection-reason" style="font-size:1.1rem; font-weight:600; color:#ef4444; background:rgba(239,68,68,0.08); padding:16px 20px; border-radius:12px; max-width:500px; margin:0 auto;"></p>
+            </div>
+          </div>
+
+          <!-- Pending: awaiting review -->
+          <div id="pending-section" style="display:none;">
+            <div style="padding:30px; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:16px; text-align:center;">
+              <div style="font-size:3rem; margin-bottom:16px;">⏳</div>
+              <h3 style="color:#f59e0b; margin-bottom:12px;">Awaiting Review</h3>
+              <p style="color:#64748b;">Your startup is currently under review by the admin team. You will be notified once it is approved or rejected.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" style="display:none; text-align:center; padding:40px 0; color:#64748b;">
+          <div style="font-size:3rem; margin-bottom:12px;">🚀</div>
+          <p>You have no startups yet. <a href="submit-startup.html" style="color:var(--primary);">Submit one first!</a></p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/startup-progress.js"></script>
+</body>
+</html>

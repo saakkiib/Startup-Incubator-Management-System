@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Startups - IncubatorX</title>
+  <link rel="stylesheet" href="css/entrepreneur.css">
+  <script src="js/auth-guard.js"></script>
+  <script>
+    const user = requireRole('STUDENT');
+  </script>
+</head>
+<body>
+  <header class="navbar">
+    <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div onclick="window.location.href='student-profile.html'" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <div id="nav-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">ES</div>
+        <span id="nav-user-name" style="font-weight:600;">Student Founder</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h3>Entrepreneur Panel</h3>
+      <ul>
+        <li onclick="window.location.href='dashboard-entrepreneur.html'"><span>📊</span> Overview Dashboard</li>
+        <li onclick="window.location.href='submit-startup.html'"><span>🚀</span> Submit Startup</li>
+        <li class="active" onclick="window.location.href='my-startups.html'"><span>📋</span> My Startups</li>
+        <li onclick="window.location.href='upload-pitch.html'"><span>📤</span> Upload Pitch Document</li>
+        <li onclick="window.location.href='startup-progress.html'"><span>📈</span> Update Progress</li>
+        <li onclick="window.location.href='request-funding.html'"><span>💸</span> Request Funding</li>
+        <li onclick="window.location.href='funding-history.html'"><span>💰</span> View Funding History</li>
+        <li onclick="window.location.href='notifications.html'"><span>🔔</span> Notifications</li>
+        <li onclick="window.location.href='student-profile.html'"><span>👤</span> Profile</li>
+        <li onclick="handleLogout()"><span>🚪</span> Logout</li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+          <h2>My Startups</h2>
+          <button onclick="window.location.href='submit-startup.html'" 
+                  style="background:var(--primary); color:white; border:none; padding:12px 24px; border-radius:12px; cursor:pointer; font-weight: bold;">
+            + New Startup
+          </button>
+        </div>
+
+        <div id="startups-list">
+          <!-- Loading state skeleton -->
+          <div style="color: #64748b; text-align: center; padding: 40px 0;">Loading startups list...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/my-startups.js?v=2"></script>
+</body>
+</html>

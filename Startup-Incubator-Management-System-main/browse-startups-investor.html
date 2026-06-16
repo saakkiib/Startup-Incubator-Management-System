@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Startups – Investor | IncubatorX</title>
+    <meta name="description" content="Browse and invest in approved startups listed on the IncubatorX platform.">
+    <link rel="stylesheet" href="css/investor.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="inv-navbar">
+    <a class="brand" href="dashboard-investor.html">IncubatorX</a>
+    <div class="nav-right">
+        <div class="user-info">
+            <span id="nav-user-name">Investor</span>
+            <div class="avatar" id="nav-avatar">IV</div>
+        </div>
+        <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="inv-layout">
+    <!-- Sidebar -->
+    <aside class="inv-sidebar">
+        <h3>Investor Panel</h3>
+        <ul>
+            <li onclick="location.href='dashboard-investor.html'">📊 Dashboard Overview</li>
+            <li class="active" onclick="location.href='browse-startups-investor.html'">🔍 Browse Startups</li>
+            <li onclick="location.href='investor-startup-details.html'">📋 Startup Details</li>
+            <li onclick="location.href='investor-funding.html'">💰 Funding Page</li>
+            <li onclick="location.href='investor-history.html'">📜 Investment History</li>
+            <li onclick="location.href='investor-notifications.html'">🔔 Notifications</li>
+            <li onclick="location.href='investor-profile.html'">👤 Profile</li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="inv-main">
+        <div class="inv-card">
+            <div class="page-header">
+                <div>
+                    <h1>Browse Startups</h1>
+                    <p>Discover and invest in high-potential startups</p>
+                </div>
+                <button class="btn btn-primary" onclick="loadStartups()">🔄 Refresh</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-bar">
+                <input type="text" id="search-input" class="inv-input" style="flex:1; min-width:200px;"
+                       placeholder="Search by name, founder, or industry…" oninput="filterStartups()">
+                <select id="industry-filter" class="inv-select" style="width:180px;" onchange="filterStartups()">
+                    <option value="">All Industries</option>
+                    <option value="GreenTech">GreenTech</option>
+                    <option value="HealthTech">HealthTech</option>
+                    <option value="EdTech">EdTech</option>
+                    <option value="FinTech">FinTech</option>
+                    <option value="AI">AI / ML</option>
+                    <option value="Sustainability">Sustainability</option>
+                </select>
+                <select id="stage-filter" class="inv-select" style="width:150px;" onchange="filterStartups()">
+                    <option value="">All Stages</option>
+                    <option value="Idea">Idea</option>
+                    <option value="MVP">MVP</option>
+                    <option value="Growth">Growth</option>
+                </select>
+            </div>
+
+            <!-- Startup Grid -->
+            <div id="startups-container" class="startup-grid">
+                <div class="loading-state" style="grid-column:1/-1;">
+                    <div class="spinner"></div>
+                    <p style="margin-top:14px;">Loading startups…</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- View Details Modal -->
+<div id="view-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 id="modal-title" style="font-size:1.4rem; font-weight:700;"></h2>
+            <button class="modal-close" onclick="closeViewModal()">×</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="flex:1;" onclick="closeViewModal()">Close</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="investFromModal()">Invest Now</button>
+        </div>
+    </div>
+</div>
+
+<!-- Invest Modal -->
+<div id="invest-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 style="font-size:1.4rem; font-weight:700;">Make an Investment</h2>
+            <button class="modal-close" onclick="closeInvestModal()">×</button>
+        </div>
+        <div class="modal-body" id="invest-modal-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="flex:1;" onclick="closeInvestModal()">Cancel</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="confirmInvestment()">Confirm Investment</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/investor-browse.js"></script>
+</body>
+</html>

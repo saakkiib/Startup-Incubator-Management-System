@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Mentors — IncubatorX Admin</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">AD</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>👨‍🏫 Assign Mentors</h1>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          <!-- Startups Column -->
+          <div>
+            <div class="section-header">
+              <h3>Approved Startups</h3>
+            </div>
+            <input type="text" class="search-box" placeholder="Search startups…" oninput="filterStartups(this.value)" style="width:100%; margin-bottom:16px;">
+            <div id="startups-list">
+              <div class="skeleton" style="height:70px;border-radius:12px;margin-bottom:10px;"></div>
+              <div class="skeleton" style="height:70px;border-radius:12px;margin-bottom:10px;"></div>
+            </div>
+          </div>
+
+          <!-- Assignment Panel -->
+          <div>
+            <div class="section-header">
+              <h3>Assign Panel</h3>
+            </div>
+            <div id="assign-panel" class="detail-section" style="text-align:center; color:#64748b;">
+              <div style="font-size:3rem; margin-bottom:12px;">👈</div>
+              <p>Select a startup from the left to assign a mentor</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Current Assignments Table -->
+        <div class="section-header" style="margin-top:35px;">
+          <h3>📋 Current Assignments</h3>
+        </div>
+        <div id="assignments-wrapper">
+          <div class="skeleton" style="height:50px;border-radius:8px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:50px;border-radius:8px;margin-bottom:8px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Assign Modal -->
+  <div id="assign-modal" class="modal hidden">
+    <div class="modal-content glass" style="max-width:500px; width:100%;">
+      <span class="close" onclick="closeModal()">×</span>
+      <h2 style="color:var(--primary); margin-bottom:6px;">Assign Mentor</h2>
+      <p id="modal-startup-name" style="color:#64748b; margin-bottom:20px;"></p>
+      <div id="mentor-list"></div>
+      <div class="form-group" style="margin-top:16px;">
+        <label>Notes (optional)</label>
+        <textarea id="assign-notes" class="form-control" rows="3" placeholder="Add assignment instructions or context…"></textarea>
+      </div>
+      <button id="confirm-assign-btn" class="btn" style="width:100%; margin-top:10px; background:var(--primary); color:white;" onclick="confirmAssign()">Confirm Assignment</button>
+      <p id="assign-error" class="error-msg" style="margin-top:12px; display:none;"></p>
+    </div>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allStartups = [], allMentors = [], allAssignments = [];
+    let selectedStartupId = null, selectedMentorId = null;
+    const user = requireRole('ADMIN');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getAdminSidebar('admin-assign-mentors.html');
+
+      Promise.all([
+        fetchAllStartups(),
+        fetchUsersByRole('MENTOR'),
+        fetchAllAssignments()
+      ]).then(([startups, mentors, assignments]) => {
+        allStartups   = startups.filter(s => s.status === 'approved');
+        allMentors    = mentors;
+        allAssignments = assignments;
+        renderStartupsList(allStartups);
+        renderAssignmentsTable(allAssignments);
+      }).catch(err => {
+        document.getElementById('startups-list').innerHTML = `<p class="error-msg">${err.message}</p>`;
+      });
+    }
+
+    function renderStartupsList(list) {
+      const el = document.getElementById('startups-list');
+      el.innerHTML = list.length
+        ? list.map(s => `
+            <div class="activity-card" onclick="openAssignPanel(${s.id}, '${(s.name).replace(/'/g,"\\'")}')">
+              <div class="activity-icon">🚀</div>
+              <div class="activity-body">
+                <h4>${s.name}</h4>
+                <p>${s.industry || 'Industry N/A'} · ${s.stage || 'Stage N/A'}</p>
+              </div>
+              <span style="font-size:1.4rem; color:var(--primary);">→</span>
+            </div>`).join('')
+        : '<div class="empty-state"><div class="empty-icon">🚀</div><h3>No Approved Startups</h3><p>Approve startups first.</p></div>';
+    }
+
+    function filterStartups(term) {
+      const filtered = allStartups.filter(s => (s.name || '').toLowerCase().includes(term.toLowerCase()));
+      renderStartupsList(filtered);
+    }
+
+    function openAssignPanel(startupId, startupName) {
+      selectedStartupId = startupId;
+      selectedMentorId  = null;
+      document.getElementById('modal-startup-name').textContent = `Assigning mentor to: ${startupName}`;
+      document.getElementById('assign-notes').value = '';
+      document.getElementById('assign-error').style.display = 'none';
+
+      const mentorListEl = document.getElementById('mentor-list');
+      mentorListEl.innerHTML = allMentors.length
+        ? allMentors.map(m => `
+            <div class="mentor-card-select" id="mentor-${m.id}" onclick="selectMentor(${m.id})">
+              <div class="mentor-avatar">${(m.fullName || m.username || 'M').substring(0,2).toUpperCase()}</div>
+              <div class="mentor-info">
+                <h4>${m.fullName || m.username}</h4>
+                <p>${m.email}</p>
+              </div>
+            </div>`).join('')
+        : '<p class="text-muted">No mentors registered yet.</p>';
+
+      document.getElementById('assign-modal').classList.remove('hidden');
+    }
+
+    function selectMentor(id) {
+      selectedMentorId = id;
+      document.querySelectorAll('.mentor-card-select').forEach(el => el.classList.remove('selected'));
+      document.getElementById(`mentor-${id}`)?.classList.add('selected');
+    }
+
+    function closeModal() {
+      document.getElementById('assign-modal').classList.add('hidden');
+      selectedStartupId = null;
+      selectedMentorId  = null;
+    }
+
+    async function confirmAssign() {
+      const errorEl = document.getElementById('assign-error');
+      if (!selectedMentorId) {
+        errorEl.textContent = 'Please select a mentor first.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      errorEl.style.display = 'none';
+      const notes = document.getElementById('assign-notes').value;
+      try {
+        const result = await assignMentorToStartup(selectedStartupId, selectedMentorId, user.id, notes);
+        allAssignments.push(result);
+        renderAssignmentsTable(allAssignments);
+        closeModal();
+        showToast('Mentor assigned successfully!', 'success');
+      } catch(e) {
+        errorEl.textContent = e.message;
+        errorEl.style.display = 'block';
+      }
+    }
+
+    function renderAssignmentsTable(list) {
+      const el = document.getElementById('assignments-wrapper');
+      el.innerHTML = list.length
+        ? `<table class="data-table">
+             <thead><tr><th>#</th><th>Startup</th><th>Mentor</th><th>Notes</th><th>Date</th></tr></thead>
+             <tbody>${list.map((a, i) => `
+               <tr>
+                 <td>${i+1}</td>
+                 <td><strong>${a.startup?.name || '—'}</strong></td>
+                 <td>${a.mentor?.fullName || a.mentor?.username || '—'}</td>
+                 <td>${a.notes || '—'}</td>
+                 <td>${formatDate(a.assignedAt)}</td>
+               </tr>`).join('')}
+             </tbody>
+           </table>`
+        : '<div class="empty-state"><div class="empty-icon">📋</div><h3>No Assignments Yet</h3></div>';
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.profile-container')) { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; }
+    });
+  </script>
+</body>
+</html>

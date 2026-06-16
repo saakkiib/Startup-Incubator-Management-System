@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Startup Details — IncubatorX Mentor</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <div>
+            <button class="btn secondary-btn" style="margin-top:0; padding:8px 16px;" onclick="window.location.href='mentor-assigned.html'">← Back</button>
+          </div>
+          <button class="btn" style="margin-top:0;" onclick="goEvaluate()">📝 Evaluate This Startup</button>
+        </div>
+
+        <div id="detail-content">
+          <div class="skeleton" style="height:180px;border-radius:14px;margin-bottom:18px;"></div>
+          <div class="skeleton" style="height:120px;border-radius:14px;"></div>
+        </div>
+
+        <div class="section-header" style="margin-top:28px;">
+          <h3>📑 Past Evaluations</h3>
+        </div>
+        <div id="evals-list">
+          <div class="skeleton" style="height:60px;border-radius:8px;margin-bottom:8px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    const user = requireRole('MENTOR');
+    const { id: startupId, name: startupName } = getSelectedStartup();
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('mentor-startup-details.html');
+
+      if (!startupId) {
+        document.getElementById('detail-content').innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No Startup Selected</h3>
+            <p>Go back and click a startup to view its details.</p>
+          </div>`;
+        document.getElementById('evals-list').innerHTML = '';
+      } else {
+        Promise.all([
+          fetchStartupDetails(startupId),
+          fetchStartupEvaluations(startupId),
+          Promise.race([
+            fetch(`http://localhost:8085/api/documents/startup/${startupId}`).then(r => r.ok ? r.json() : []),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000))
+          ])
+        ]).then(([s, evals, docs]) => {
+          window._mentorPitchDocs = docs;
+          document.getElementById('detail-content').innerHTML = `
+            <div class="detail-section">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                <div>
+                  <h2 style="color:var(--primary); margin-bottom:4px;">${s.name}</h2>
+                  <p class="text-muted">${s.industry || 'Industry N/A'} · ${s.stage || 'Stage N/A'}</p>
+                </div>
+                ${mentorGetStatusBadge(s.status)}
+              </div>
+              <p style="line-height:1.7; margin-bottom:20px;">${s.description || 'No description available.'}</p>
+              <div class="detail-row"><span class="detail-label">Founder</span><span class="detail-value">${s.founderName || '—'}</span></div>
+              <div class="detail-row"><span class="detail-label">Industry</span><span class="detail-value">${s.industry || '—'}</span></div>
+              <div class="detail-row"><span class="detail-label">Stage</span><span class="detail-value">${s.stage || '—'}</span></div>
+              <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">${mentorGetStatusBadge(s.status)}</span></div>
+              <div class="detail-row"><span class="detail-label">Submitted</span><span class="detail-value">${mentorFormatDate(s.submittedAt)}</span></div>
+            </div>
+            <div class="section-header" style="margin-top:28px;">
+              <h3>📄 Pitch Documents</h3>
+            </div>
+            <div id="pitch-docs-list">
+              ${docs.length
+                ? docs.map((doc, i) => `
+                  <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; background:var(--bg2,#f8fafc); border:1px solid var(--border); border-radius:10px; margin-bottom:8px;">
+                    <span style="flex:1; min-width:0;">📄 ${doc.fileName || 'Document'}</span>
+                    <div style="display:flex; gap:8px; flex-shrink:0; margin-left:12px;">
+                      <button onclick="viewPitchDoc(${i})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600;">View</button>
+                      <button onclick="downloadPitchDoc(${i})" style="background:none; border:none; color:var(--primary); cursor:pointer; font-weight:600;">Download</button>
+                    </div>
+                  </div>`).join('')
+                : '<p class="text-muted" style="padding:12px 0;">No pitch documents uploaded yet.</p>'}
+            </div>`;
+
+          document.getElementById('evals-list').innerHTML = evals.length
+            ? evals.map(e => `
+                <div class="project-card">
+                  <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+                    <h4>By: ${e.mentor?.fullName || e.mentor?.username || 'Unknown Mentor'}</h4>
+                    <small class="text-muted">${mentorFormatDate(e.evaluatedAt)}</small>
+                  </div>
+                  <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px;">
+                    <span>Tech: <strong>${e.technicalScore ?? '—'}</strong></span>
+                    <span>Market: <strong>${e.marketScore ?? '—'}</strong></span>
+                    <span>Financial: <strong>${e.financialScore ?? '—'}</strong></span>
+                    <span>Overall: <strong style="color:var(--primary);">${e.overallScore ?? '—'}</strong></span>
+                  </div>
+                  <p class="text-muted" style="font-size:0.88rem;"><em>${e.recommendation || 'No recommendation.'}</em></p>
+                </div>`).join('')
+            : '<div class="empty-state" style="padding:40px;"><p>No evaluations yet for this startup.</p></div>';
+        }).catch(err => {
+          document.getElementById('detail-content').innerHTML = `<p class="error-msg">${err.message}</p>`;
+          document.getElementById('evals-list').innerHTML = '';
+        });
+      }
+    }
+
+    function goEvaluate() {
+      window.location.href = 'mentor-evaluate.html';
+    }
+
+    async function viewPitchDoc(index) {
+      const docs = window._mentorPitchDocs || [];
+      const d = docs[index];
+      if (!d || !d.id) { alert('Document not available.'); return; }
+      try {
+        const res = await fetch(`http://localhost:8085/api/documents/${d.id}`);
+        if (!res.ok) throw new Error();
+        const full = await res.json();
+        if (!full.fileData) { alert('Document content not available.'); return; }
+        const mimeMap = { pdf:'application/pdf', ppt:'application/vnd.ms-powerpoint', pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation', doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+        const b64 = full.fileData.split(',')[1] || full.fileData;
+        const byteString = atob(b64);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+        const blob = new Blob([ab], { type: mimeMap[full.fileType] || 'application/pdf' });
+        window.open(URL.createObjectURL(blob), '_blank');
+      } catch { alert('Failed to load document.'); }
+    }
+
+    function downloadPitchDoc(index) {
+      const docs = window._mentorPitchDocs || [];
+      const d = docs[index];
+      if (!d || !d.id) { alert('Document not available.'); return; }
+      const a = document.createElement('a');
+      a.href = `http://localhost:8085/api/documents/${d.id}/download`;
+      a.download = d.fileName || 'document.' + (d.fileType || 'pdf');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

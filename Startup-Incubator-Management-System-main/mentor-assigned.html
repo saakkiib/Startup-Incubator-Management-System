@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assigned Startups — IncubatorX Mentor</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>📋 Assigned Startups</h1>
+          <input type="text" id="search-input" class="search-box" placeholder="Search startups…" oninput="filterList()">
+        </div>
+
+        <div id="cards-container">
+          <div class="skeleton" style="height:100px;border-radius:14px;margin-bottom:14px;"></div>
+          <div class="skeleton" style="height:100px;border-radius:14px;margin-bottom:14px;"></div>
+          <div class="skeleton" style="height:100px;border-radius:14px;margin-bottom:14px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    let allAssignments = [];
+    const user = requireRole('MENTOR');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('mentor-assigned.html');
+
+      fetchMentorAssignments(user.id).then(data => {
+        allAssignments = data;
+        renderCards(allAssignments);
+      }).catch(err => {
+        document.getElementById('cards-container').innerHTML = `<p class="error-msg">${err.message}</p>`;
+      });
+    }
+
+    function renderCards(list) {
+      const el = document.getElementById('cards-container');
+      el.innerHTML = list.length
+        ? list.map(a => {
+            const s = a.startup || {};
+            const progress = s.status === 'approved' ? 75 : (s.status === 'rejected' ? 20 : 40);
+            return `
+              <div class="activity-card">
+                <div class="activity-icon">🚀</div>
+                <div class="activity-body">
+                  <h4>${s.name || 'Unnamed Startup'}</h4>
+                  <p>${s.industry || 'Industry N/A'} · <em>${s.stage || 'Stage N/A'}</em></p>
+                  <p class="text-muted" style="font-size:0.85rem;">${(s.description || '').substring(0,80)}…</p>
+                  <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%"></div></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+                  ${mentorGetStatusBadge(s.status)}
+                  <button class="action-btn btn-view" onclick="viewDetails(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}')">View</button>
+                  <button class="action-btn btn-assign" onclick="goEvaluate(${s.id}, '${(s.name||'').replace(/'/g,"\\'")}')">Evaluate</button>
+                </div>
+              </div>`;
+          }).join('')
+        : '<div class="empty-state"><div class="empty-icon">📭</div><h3>No Startups Assigned</h3><p>The admin has not assigned any startups to you yet.</p></div>';
+    }
+
+    function filterList() {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      renderCards(allAssignments.filter(a =>
+        (a.startup?.name || '').toLowerCase().includes(term) ||
+        (a.startup?.industry || '').toLowerCase().includes(term)
+      ));
+    }
+
+    function viewDetails(id, name) {
+      selectStartup(id, name);
+      window.location.href = 'mentor-startup-details.html';
+    }
+
+    function goEvaluate(id, name) {
+      selectStartup(id, name);
+      window.location.href = 'mentor-evaluate.html';
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

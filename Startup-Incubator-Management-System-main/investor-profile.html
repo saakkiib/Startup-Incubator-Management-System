@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile – Investor | IncubatorX</title>
+    <link rel="stylesheet" href="css/investor.css">
+</head>
+<body>
+
+<nav class="inv-navbar">
+    <a class="brand" href="dashboard-investor.html">IncubatorX</a>
+    <div class="nav-right">
+        <div class="user-info">
+            <span id="nav-user-name">Investor</span>
+            <div class="avatar" id="nav-avatar">IV</div>
+        </div>
+        <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="inv-layout">
+    <aside class="inv-sidebar">
+        <h3>Investor Panel</h3>
+        <ul>
+            <li onclick="location.href='dashboard-investor.html'">📊 Dashboard Overview</li>
+            <li onclick="location.href='browse-startups-investor.html'">🔍 Browse Startups</li>
+            <li onclick="location.href='investor-startup-details.html'">📋 Startup Details</li>
+            <li onclick="location.href='investor-funding.html'">💰 Funding Page</li>
+            <li onclick="location.href='investor-history.html'">📜 Investment History</li>
+            <li onclick="location.href='investor-notifications.html'">🔔 Notifications</li>
+            <li class="active" onclick="location.href='investor-profile.html'">👤 Profile</li>
+        </ul>
+    </aside>
+
+    <main class="inv-main">
+
+        <!-- VIEW MODE -->
+        <div id="view-mode">
+            <div class="inv-card">
+                <div class="profile-header">
+                    <div class="profile-photo-wrap">
+                        <img id="profile-img" alt="Profile" class="profile-photo" onclick="triggerPhotoUpload()">
+                        <div class="change-photo-btn" onclick="triggerPhotoUpload()">📷</div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 id="display-name">Investor</h1>
+                        <p>Venture Investor</p>
+                        <p id="display-email" style="margin-top:6px;"></p>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="profile-stats">
+                    <div class="stat-card"><div class="stat-number" id="stat-invested">—</div><div class="stat-label">Total Invested</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-active">—</div><div class="stat-label">Active Investments</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-return">—</div><div class="stat-label">Avg. Return</div></div>
+                    <div class="stat-card"><div class="stat-number" id="stat-startups">—</div><div class="stat-label">Startups Supported</div></div>
+                </div>
+
+                <div class="profile-details" style="margin-top:28px;">
+                    <h3 class="section-title">Basic Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value" id="display-phone">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Age</span><span class="detail-value" id="display-age">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Gender</span><span class="detail-value" id="display-sex">—</span></div>
+                        <div class="detail-item"><span class="detail-label">NID / ID No</span><span class="detail-value" id="display-nid">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Degree</span><span class="detail-value" id="display-degree">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Education</span><span class="detail-value" id="display-education">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Address</span><span class="detail-value" id="display-address">—</span></div>
+                        <div class="detail-item"><span class="detail-label">Expertise / Skills</span><span class="detail-value" id="display-expertise">—</span></div>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top:28px;">Bio</h3>
+                    <p id="display-bio" style="line-height:1.8; color:var(--muted);">—</p>
+
+                    <h3 class="section-title" style="margin-top:28px;">Investment Focus</h3>
+                    <p id="display-focus" style="line-height:1.8; color:var(--muted);">—</p>
+                </div>
+
+                <div style="margin-top:36px; text-align:center;">
+                    <div id="lock-banner" style="display:none; margin-bottom:16px; padding:14px 18px; background:rgba(245,158,11,0.1); border:1px solid #f59e0b; border-radius:12px; color:#92400e; font-size:0.9rem;">
+                        🔒 <strong>Profile editing is currently locked.</strong> A request to unlock has been sent to the admin.
+                    </div>
+                    <div id="approved-banner" style="display:none; margin-bottom:16px; padding:14px 18px; background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:12px; color:#065f46; font-size:0.9rem;">
+                        ✅ Your edit request has been <strong>approved</strong>. You may update your profile below.
+                    </div>
+                    <button class="btn btn-primary" id="edit-profile-btn" onclick="showEditMode()">✏️ Edit Profile</button>
+                    <button class="btn btn-primary" id="request-edit-btn" style="display:none;" onclick="requestEdit()">🔓 Request to Edit Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDIT MODE -->
+        <div id="edit-mode" style="display:none;">
+            <div class="inv-card">
+                <div class="profile-header" style="margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--border);">
+                    <div class="profile-photo-wrap">
+                        <img id="edit-profile-img" alt="Profile" class="profile-photo" onclick="triggerPhotoUpload()" style="cursor:pointer;">
+                        <div class="change-photo-btn" onclick="triggerPhotoUpload()">📷</div>
+                    </div>
+                    <div>
+                        <h2 id="edit-name-header" style="font-size:1.8rem;"></h2>
+                        <p style="color:var(--muted);">Venture Investor</p>
+                    </div>
+                </div>
+
+                <div class="edit-form-grid">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="edit-name" class="inv-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="edit-email" class="inv-input" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="edit-phone" class="inv-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="edit-age" class="inv-input" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="edit-sex" class="inv-input">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>NID / ID No</label>
+                        <input type="text" id="edit-nid" class="inv-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Degree</label>
+                        <input type="text" id="edit-degree" class="inv-input" placeholder="e.g. MBA, BSc Finance">
+                    </div>
+                    <div class="form-group">
+                        <label>Educational Qualification</label>
+                        <input type="text" id="edit-education" class="inv-input" placeholder="e.g. MBA in Finance">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="edit-address" class="inv-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Expertise / Skills</label>
+                        <input type="text" id="edit-expertise" class="inv-input" placeholder="e.g. Venture Capital, AI, FinTech">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Bio</label>
+                        <textarea id="edit-bio" class="inv-input" rows="4" placeholder="Write a short bio about yourself..."></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Investment Focus Areas</label>
+                        <input type="text" id="edit-focus" class="inv-input" placeholder="e.g. AI, HealthTech, FinTech">
+                    </div>
+                </div>
+
+                <div class="edit-footer">
+                    <button class="btn btn-ghost" onclick="hideEditMode()">Cancel</button>
+                    <button class="btn btn-primary" id="investor-save-btn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<input type="file" id="photo-upload" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
+<div id="toast-container"></div>
+<style>
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+.detail-item {
+    background: var(--bg2, #f8fafc);
+    padding: 14px 18px;
+    border-radius: 10px;
+}
+.detail-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted, #64748b);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.detail-value {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text, #1e293b);
+}
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary, #2563eb);
+    display: inline-block;
+}
+.profile-details h3.section-title {
+    margin-top: 0;
+}
+</style>
+<script src="js/investor-profile.js?v=2"></script>
+</body>
+</html>

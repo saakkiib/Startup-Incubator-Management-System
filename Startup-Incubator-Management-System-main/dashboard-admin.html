@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — IncubatorX</title>
+  <meta name="description" content="Admin control panel for IncubatorX Startup Incubator Management System.">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <!-- Navbar -->
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 style="cursor:pointer;" onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem;">AD</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-box glass">
+        <!-- Stats Grid -->
+        <div class="stat-grid" id="stats-grid">
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+        </div>
+
+        <!-- Recent Startups -->
+        <div class="section-header">
+          <h3>⏳ Pending Startup Approvals</h3>
+          <button class="btn" style="margin-top:0; padding:8px 18px;" onclick="window.location.href='admin-manage-startups.html'">View All</button>
+        </div>
+        <div id="pending-list">
+          <div class="skeleton" style="height:70px; border-radius:12px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:70px; border-radius:12px; margin-bottom:10px;"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='admin-manage-users.html'">👥 Manage Users</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='admin-assign-mentors.html'">👨‍🏫 Assign Mentors</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='admin-funding-records.html'">💰 Funding Records</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='admin-view-evaluations.html'">📝 Evaluations</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    const user = requireRole('ADMIN');
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getAdminSidebar('dashboard-admin.html');
+
+      (async () => {
+        const stats = await loadAdminStats();
+        if (stats) {
+          document.getElementById('stats-grid').innerHTML = `
+            <div class="stat-card">
+              <div class="stat-number">${stats.startups.length}</div>
+              <div class="stat-label">Total Startups</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${stats.pending}</div>
+              <div class="stat-label">Pending Approval</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${stats.users.length}</div>
+              <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${formatCurrency(stats.totalFund)}</div>
+              <div class="stat-label">Total Funded</div>
+            </div>
+          `;
+
+          const pending = stats.startups.filter(s => s.status === 'pending').slice(0, 5);
+          document.getElementById('pending-list').innerHTML = pending.length
+            ? pending.map(s => `
+                <div class="activity-card">
+                  <div class="activity-icon">🚀</div>
+                  <div class="activity-body">
+                    <h4>${s.name}</h4>
+                    <p>${s.industry || 'Industry not set'} · ${s.stage || 'Stage N/A'} · by ${s.founderName || 'Unknown'}</p>
+                  </div>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <button class="action-btn btn-approve" onclick="handleApprove(${s.id})">✅ Approve</button>
+                    <button class="action-btn btn-reject"  onclick="handleReject(${s.id})">❌ Reject</button>
+                  </div>
+                </div>`)
+              .join('')
+            : '<div class="empty-state"><div class="empty-icon">🎉</div><h3>No Pending Approvals</h3><p>All startups have been reviewed.</p></div>';
+        } else {
+          document.getElementById('stats-grid').innerHTML = '<p class="error-msg">Could not load stats. Is the backend running at localhost:8085?</p>';
+          document.getElementById('pending-list').innerHTML = '';
+        }
+      })();
+    }
+
+    async function handleApprove(id) {
+      try {
+        await approveStartup(id);
+        showToast('Startup approved!', 'success');
+        location.reload();
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+    async function handleReject(id) {
+      if (!confirm('Reject this startup?')) return;
+      try {
+        await rejectStartup(id);
+        showToast('Startup rejected.', 'warning');
+        location.reload();
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => {
+      const dd = document.getElementById('dropdown');
+      if (dd) dd.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

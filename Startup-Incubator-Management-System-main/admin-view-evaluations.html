@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Evaluations — IncubatorX Admin</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">AD</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>📝 View Evaluations</h1>
+          <input type="text" id="search-input" class="search-box" placeholder="Search by startup or mentor…" oninput="filterEvaluations()">
+        </div>
+
+        <div id="loading-state">
+          <div class="skeleton" style="height:55px;border-radius:8px;margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:55px;border-radius:8px;margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:55px;border-radius:8px;margin-bottom:10px;"></div>
+        </div>
+
+        <div id="table-wrapper" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Startup</th><th>Mentor</th>
+                <th>Technical</th><th>Market</th><th>Financial</th><th>Overall</th>
+                <th>Recommendation</th><th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="eval-body"></tbody>
+          </table>
+          <div id="empty-state" class="empty-state" style="display:none;">
+            <div class="empty-icon">📝</div>
+            <h3>No Evaluations Yet</h3>
+            <p>Mentors haven't submitted any evaluations.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allEvals = [];
+    const user = requireRole('ADMIN');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getAdminSidebar('admin-view-evaluations.html');
+
+      fetchAllEvaluations().then(data => {
+        allEvals = data;
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('table-wrapper').style.display = 'block';
+        renderEvals(allEvals);
+      }).catch(err => {
+        document.getElementById('loading-state').innerHTML = `<p class="error-msg">${err.message}</p>`;
+      });
+    }
+
+    function renderEvals(list) {
+      const tbody = document.getElementById('eval-body');
+      const empty = document.getElementById('empty-state');
+      if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      tbody.innerHTML = list.map((e, i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td><strong>${e.startup?.name || '—'}</strong></td>
+          <td>${e.mentor?.fullName || e.mentor?.username || '—'}</td>
+          <td>
+            <div>${e.technicalScore ?? '—'}/100</div>
+            <div class="progress-bar-wrap" style="width:80px;">
+              <div class="progress-bar-fill" style="width:${e.technicalScore ?? 0}%"></div>
+            </div>
+          </td>
+          <td>
+            <div>${e.marketScore ?? '—'}/100</div>
+            <div class="progress-bar-wrap" style="width:80px;">
+              <div class="progress-bar-fill" style="width:${e.marketScore ?? 0}%"></div>
+            </div>
+          </td>
+          <td>
+            <div>${e.financialScore ?? '—'}/100</div>
+            <div class="progress-bar-wrap" style="width:80px;">
+              <div class="progress-bar-fill" style="width:${e.financialScore ?? 0}%"></div>
+            </div>
+          </td>
+          <td><strong style="color:var(--primary);">${e.overallScore ?? '—'}</strong></td>
+          <td><span style="font-size:0.85rem;">${e.recommendation || '—'}</span></td>
+          <td>${formatDate(e.evaluatedAt)}</td>
+        </tr>`).join('');
+    }
+
+    function filterEvaluations() {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      renderEvals(allEvals.filter(e =>
+        (e.startup?.name || '').toLowerCase().includes(term) ||
+        (e.mentor?.fullName || '').toLowerCase().includes(term) ||
+        (e.recommendation || '').toLowerCase().includes(term)
+      ));
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

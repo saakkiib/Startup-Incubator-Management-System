@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Funding - IncubatorX</title>
+  <link rel="stylesheet" href="css/entrepreneur.css">
+  <script src="js/auth-guard.js"></script>
+  <script>
+    const user = requireRole('STUDENT');
+  </script>
+</head>
+<body>
+  <header class="navbar">
+    <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div onclick="window.location.href='student-profile.html'" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <div id="nav-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">ES</div>
+        <span id="nav-user-name" style="font-weight:600;">Student Founder</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3>Entrepreneur Panel</h3>
+      <ul>
+        <li onclick="window.location.href='dashboard-entrepreneur.html'"><span>📊</span> Overview Dashboard</li>
+        <li onclick="window.location.href='submit-startup.html'"><span>🚀</span> Submit Startup</li>
+        <li class="active" onclick="window.location.href='my-startups.html'"><span>📋</span> My Startups</li>
+        <li onclick="window.location.href='upload-pitch.html'"><span>📤</span> Upload Pitch Document</li>
+        <li onclick="window.location.href='startup-progress.html'"><span>📈</span> Update Progress</li>
+        <li class="active" onclick="window.location.href='request-funding.html'"><span>💸</span> Request Funding</li>
+        <li onclick="window.location.href='funding-history.html'"><span>💰</span> View Funding History</li>
+        <li onclick="window.location.href='notifications.html'"><span>🔔</span> Notifications</li>
+        <li onclick="window.location.href='student-profile.html'"><span>👤</span> Profile</li>
+        <li onclick="handleLogout()"><span>🚪</span> Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box">
+        <h2>💰 Request Funding</h2>
+        <p style="color:#64748b; margin-bottom:30px;">
+          Submit a funding request for one of your approved startups to be matched with investors.
+        </p>
+
+        <!-- Status info banner -->
+        <div style="background:rgba(20,184,166,0.08); border:1px solid rgba(20,184,166,0.3);
+             border-radius:14px; padding:16px 20px; margin-bottom:28px; display:flex; gap:12px;">
+          <span style="font-size:1.4rem;">ℹ️</span>
+          <p style="line-height:1.6;">
+            Funding requests are reviewed by the incubator team. Only <strong>approved</strong> startups
+            are eligible. You will be notified when an investor expresses interest.
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form id="funding-form">
+          <!-- Startup -->
+          <label style="font-weight:600; display:block; margin-bottom:8px;">
+            Select Startup <span style="color:#ef4444;">*</span>
+          </label>
+          <select id="startup-select" class="form-control" required onchange="onStartupChange()">
+            <option value="">Loading your approved startups…</option>
+          </select>
+
+          <!-- Startup Info Preview -->
+          <div id="startup-preview" style="display:none; margin-bottom:20px; padding:16px;
+               background:rgba(20,184,166,0.06); border:1px solid var(--border); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+              <div>
+                <div style="font-size:0.85rem; color:#64748b;">Funding Goal</div>
+                <div style="font-weight:800; font-size:1.2rem; color:var(--primary);" id="preview-goal">$0</div>
+              </div>
+              <div>
+                <div style="font-size:0.85rem; color:#64748b;">Already Raised</div>
+                <div style="font-weight:800; font-size:1.2rem; color:#10b981;" id="preview-raised">$0</div>
+              </div>
+              <div>
+                <div style="font-size:0.85rem; color:#64748b;">Still Needed</div>
+                <div style="font-weight:800; font-size:1.2rem;" id="preview-needed">$0</div>
+              </div>
+            </div>
+            <div class="progress-bar" style="margin-top:14px; height:10px;">
+              <div class="progress-fill" id="preview-bar" style="width:0%; background:#10b981;"></div>
+            </div>
+          </div>
+
+          <!-- Requested Amount -->
+          <label style="font-weight:600; display:block; margin-bottom:8px;">
+            Requested Amount (USD) <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="number" id="amount" class="form-control" min="100" step="100"
+                 placeholder="e.g. 25000" required>
+
+          <!-- Purpose -->
+          <label style="font-weight:600; display:block; margin-bottom:8px;">
+            Purpose / Use of Funds <span style="color:#ef4444;">*</span>
+          </label>
+          <select id="purpose" class="form-control" required onchange="onPurposeChange()">
+            <option value="">Select purpose</option>
+            <option value="Product Development">Product Development</option>
+            <option value="Marketing & Growth">Marketing &amp; Growth</option>
+            <option value="Hiring & Team">Hiring &amp; Team</option>
+            <option value="Equipment & Infrastructure">Equipment &amp; Infrastructure</option>
+            <option value="Research & Development">Research &amp; Development</option>
+            <option value="Operations & Working Capital">Operations &amp; Working Capital</option>
+            <option value="Others">Others</option>
+          </select>
+
+          <!-- Custom Purpose (shown when Others selected) -->
+          <div id="custom-purpose-wrapper" style="display:none; margin-top:12px;">
+            <label style="font-weight:600; display:block; margin-bottom:8px;">
+              Specify Purpose <span style="color:#ef4444;">*</span>
+            </label>
+            <input type="text" id="custom-purpose" class="form-control"
+                   placeholder="e.g. Patent filing & IP protection">
+          </div>
+
+          <!-- Note -->
+          <label style="font-weight:600; display:block; margin-bottom:8px;">Additional Note</label>
+          <textarea id="note" class="form-control" rows="4"
+            placeholder="Describe how this funding will accelerate your startup…"></textarea>
+
+          <div id="form-message" style="display:none; margin-bottom:16px;"></div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            🚀 Submit Funding Request
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/request-funding.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var sel = document.getElementById('purpose');
+      if (sel) sel.addEventListener('change', onPurposeChange);
+    });
+  </script>
+</body>
+</html>

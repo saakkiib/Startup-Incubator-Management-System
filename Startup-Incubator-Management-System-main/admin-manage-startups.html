@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Startups — IncubatorX Admin</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">AD</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>🚀 Manage Startups</h1>
+          <input type="text" id="search-input" class="search-box" placeholder="Search startups…" oninput="filterStartups()">
+        </div>
+
+        <!-- Status Filter -->
+        <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+          <button class="btn chip active" id="tab-all"      style="margin-top:0; border-radius:30px;" onclick="setTab('all')">All</button>
+          <button class="btn chip"        id="tab-pending"  style="margin-top:0; border-radius:30px;" onclick="setTab('pending')">Pending</button>
+          <button class="btn chip"        id="tab-approved" style="margin-top:0; border-radius:30px;" onclick="setTab('approved')">Approved</button>
+          <button class="btn chip"        id="tab-rejected" style="margin-top:0; border-radius:30px;" onclick="setTab('rejected')">Rejected</button>
+        </div>
+
+        <div id="loading-state">
+          <div class="skeleton" style="height:55px; border-radius:8px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:55px; border-radius:8px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:55px; border-radius:8px; margin-bottom:10px;"></div>
+        </div>
+
+        <div id="table-wrapper" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Founder</th><th>Industry</th><th>Stage</th><th>Status</th><th>Pitch</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="startups-body"></tbody>
+          </table>
+          <div id="empty-state" class="empty-state" style="display:none;">
+            <div class="empty-icon">🚀</div>
+            <h3>No Startups Found</h3>
+            <p>No startups match your current filter.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allStartups = [];
+    let currentTab = 'all';
+    const user = requireRole('ADMIN');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getAdminSidebar('admin-manage-startups.html');
+
+      fetchAllStartups().then(data => {
+        allStartups = data;
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('table-wrapper').style.display = 'block';
+        renderStartups(allStartups);
+      }).catch(err => {
+        document.getElementById('loading-state').innerHTML = `<p class="error-msg">${err.message}. Is the backend running?</p>`;
+      });
+    }
+
+    let pitchCache = {};
+
+    window.viewPitch = async function(id) {
+      if (pitchCache[id]) { showPitchModal(pitchCache[id]); return; }
+      try {
+        const res = await fetch(`http://localhost:8085/api/documents/startup/${id}`);
+        if (!res.ok) throw new Error('Failed');
+        const docs = await res.json();
+        pitchCache[id] = docs;
+        showPitchModal(docs);
+      } catch(e) {
+        showToast('No pitch documents found', 'warning');
+      }
+    };
+
+    let _pitchDocs = [];
+
+    function showPitchModal(docs) {
+      _pitchDocs = docs;
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;';
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+      overlay.innerHTML = `
+        <div style="background:#fff;border-radius:16px;padding:28px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h3 style="margin:0;">📄 Pitch Documents</h3>
+            <button onclick="this.closest('[id]').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">✕</button>
+          </div>
+          ${docs.length
+            ? docs.map((doc, i) => `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:10px;">
+                <div>
+                  <strong>${doc.fileName || 'Document'}</strong>
+                  <div style="font-size:0.85rem;color:#64748b;">${doc.fileSize ? (doc.fileSize/1024).toFixed(1) + ' KB' : ''} · ${doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : ''}</div>
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button onclick="adminOpenPitchDoc(${i})" style="background:#2563eb;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;">View</button>
+                  <button onclick="adminDownloadPitchDoc(${i})" style="background:#2563eb;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;">Download</button>
+                  <button onclick="adminDeletePitchDoc(${i})" style="background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;">Delete</button>
+                </div>
+              </div>`).join('')
+            : '<p style="color:#64748b;text-align:center;">No pitch documents uploaded yet.</p>'}
+        </div>`;
+      document.body.appendChild(overlay);
+    }
+
+    function adminBase64ToBlob(fileData, fileType) {
+      if (!fileData) return null;
+      const mimeMap = { pdf:'application/pdf', ppt:'application/vnd.ms-powerpoint', pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation', doc:'application/msword', docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
+      const mime = mimeMap[fileType] || 'application/octet-stream';
+      const byteString = atob(fileData.split(',')[1] || fileData);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      return new Blob([ab], { type: mime });
+    }
+
+    window.adminOpenPitchDoc = function(index) {
+      const d = _pitchDocs[index];
+      if (!d || !d.fileData) { alert('Document content not available.'); return; }
+      const blob = adminBase64ToBlob(d.fileData, d.fileType);
+      if (blob) window.open(URL.createObjectURL(blob), '_blank');
+    };
+
+    window.adminDownloadPitchDoc = function(index) {
+      const d = _pitchDocs[index];
+      if (!d || !d.fileData) { alert('Document content not available.'); return; }
+      const blob = adminBase64ToBlob(d.fileData, d.fileType);
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = d.fileName || 'document.' + (d.fileType || 'pdf');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    window.adminDeletePitchDoc = function(index) {
+      const d = _pitchDocs[index];
+      if (!d || !d.id) { alert('Document not found.'); return; }
+      if (!confirm(`Delete "${d.fileName || 'Document'}" permanently?`)) return;
+      fetch(`http://localhost:8085/api/documents/${d.id}`, { method: 'DELETE' })
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to delete document');
+          showToast('Document deleted successfully', 'success');
+          _pitchDocs.splice(index, 1);
+          const overlays = document.querySelectorAll('div[style*="position:fixed"][style*="z-index:999"]');
+          overlays.forEach(el => el.remove());
+          showPitchModal(_pitchDocs);
+        })
+        .catch(err => showToast(err.message, 'error'));
+    };
+
+    function renderStartups(list) {
+      const tbody = document.getElementById('startups-body');
+      const empty = document.getElementById('empty-state');
+      if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      tbody.innerHTML = list.map((s, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${s.name}</strong><br><small class="text-muted">${(s.description || '').substring(0, 50)}…</small></td>
+          <td>${s.founderName || '—'}</td>
+          <td>${s.industry || '—'}</td>
+          <td>${s.stage || '—'}</td>
+          <td>${getStatusBadge(s.status)}</td>
+          <td><button class="action-btn" style="background:#6366f1;color:white;" onclick="viewPitch(${s.id})">📄 View</button></td>
+          <td style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${s.status !== 'approved' ? `<button class="action-btn btn-approve" onclick="handleApprove(${s.id})">✅ Approve</button>` : ''}
+            ${s.status !== 'rejected' ? `<button class="action-btn btn-reject"  onclick="handleReject(${s.id})">❌ Reject</button>`  : ''}
+          </td>
+        </tr>`).join('');
+    }
+
+    function filterStartups() {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      const list = allStartups
+        .filter(s => currentTab === 'all' || s.status === currentTab)
+        .filter(s => (s.name || '').toLowerCase().includes(term) || (s.industry || '').toLowerCase().includes(term) || (s.founderName || '').toLowerCase().includes(term));
+      renderStartups(list);
+    }
+
+    function setTab(status) {
+      currentTab = status;
+      document.querySelectorAll('[id^="tab-"]').forEach(b => b.classList.remove('active'));
+      const map = { all:'tab-all', pending:'tab-pending', approved:'tab-approved', rejected:'tab-rejected' };
+      document.getElementById(map[status])?.classList.add('active');
+      filterStartups();
+    }
+
+    async function handleApprove(id) {
+      try {
+        await approveStartup(id);
+        showToast('Startup approved!', 'success');
+        const s = allStartups.find(s => s.id === id);
+        if (s) s.status = 'approved';
+        filterStartups();
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    async function handleReject(id) {
+      const reason = prompt('Please provide a reason for rejection:');
+      if (reason === null) return;
+      try {
+        await rejectStartup(id, reason);
+        showToast('Startup rejected.', 'warning');
+        const s = allStartups.find(s => s.id === id);
+        if (s) { s.status = 'rejected'; s.rejectionReason = reason; }
+        filterStartups();
+      } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

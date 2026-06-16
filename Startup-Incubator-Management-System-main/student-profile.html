@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - IncubatorX</title>
+  <link rel="stylesheet" href="css/entrepreneur.css">
+  <script src="js/auth-guard.js"></script>
+  <script>
+    const user = requireRole('STUDENT');
+  </script>
+</head>
+<body>
+  <header class="navbar">
+    <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="nav-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">ST</div>
+        <span id="nav-user-name" style="font-weight:600;">Student</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3>Entrepreneur Panel</h3>
+      <ul>
+        <li onclick="window.location.href='dashboard-entrepreneur.html'"><span>📊</span> Overview Dashboard</li>
+        <li onclick="window.location.href='submit-startup.html'"><span>🚀</span> Submit Startup</li>
+        <li onclick="window.location.href='my-startups.html'"><span>📋</span> My Startups</li>
+        <li onclick="window.location.href='upload-pitch.html'"><span>📤</span> Upload Pitch Document</li>
+        <li onclick="window.location.href='startup-progress.html'"><span>📈</span> Update Progress</li>
+        <li onclick="window.location.href='request-funding.html'"><span>💸</span> Request Funding</li>
+        <li onclick="window.location.href='funding-history.html'"><span>💰</span> View Funding History</li>
+        <li onclick="window.location.href='notifications.html'"><span>🔔</span> Notifications</li>
+        <li class="active" onclick="window.location.href='student-profile.html'"><span>👤</span> Profile</li>
+        <li onclick="handleLogout()"><span>🚪</span> Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box">
+        <div class="profile-header">
+          <div class="profile-photo-container">
+            <div class="profile-photo" id="profile-photo-display">👤</div>
+            <div class="change-photo-btn" onclick="document.getElementById('photo-input').click()" title="Change Photo">✏️</div>
+            <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoChange(this)">
+          </div>
+          <div class="profile-info">
+            <h1 id="profile-name">Loading...</h1>
+            <p id="profile-email" style="color:#64748b;">—</p>
+            <div id="edit-status-badge" class="status-badge-profile" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="profile-stats" style="display:flex; flex-wrap:wrap; gap:20px;">
+          <div class="info-card" style="text-align:center; flex:1; min-width:180px;">
+            <div class="stat-number" id="stat-startups">0</div>
+            <div style="color:#64748b; font-size:0.9rem;">Startups</div>
+          </div>
+          <div class="info-card" style="text-align:center; flex:1; min-width:180px;">
+            <div class="stat-number" id="stat-funding">$0</div>
+            <div style="color:#64748b; font-size:0.9rem;">Total Raised</div>
+          </div>
+          <div class="info-card" style="text-align:center; flex:1; min-width:180px;">
+            <div class="stat-number" id="stat-progress">0%</div>
+            <div style="color:#64748b; font-size:0.9rem;">Avg Progress</div>
+          </div>
+        </div>
+
+        <div id="lock-banner" style="display:none; margin-bottom:25px; padding:16px 20px;
+             background:rgba(245,158,11,0.1); border:1px solid #f59e0b; border-radius:12px; color:#92400e;">
+          🔒 <strong>Profile editing is currently locked.</strong> A request to unlock has been sent to the admin.
+        </div>
+
+        <div id="approved-banner" style="display:none; margin-bottom:25px; padding:16px 20px;
+             background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:12px; color:#065f46;">
+          ✅ Your edit request has been <strong>approved</strong>. You may update your profile below.
+        </div>
+
+        <div id="edit-section">
+          <h3 style="margin-bottom:20px; color:var(--primary);">Personal Information</h3>
+          <div class="edit-form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="field-name" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label>Age</label>
+              <input type="number" id="field-age" placeholder="e.g. 22" min="16" max="100">
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select id="field-sex" class="form-control" style="margin:0;">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>NID / Student ID</label>
+              <input type="text" id="field-nid" placeholder="National ID or Student ID">
+            </div>
+            <div class="form-group">
+              <label>Degree / Program</label>
+              <input type="text" id="field-degree" placeholder="e.g. BSc. Computer Science">
+            </div>
+            <div class="form-group">
+              <label>Educational Qualification</label>
+              <input type="text" id="field-education" placeholder="e.g. BSc in CSE, MBA">
+            </div>
+            <div class="form-group">
+              <label>University</label>
+              <input type="text" id="field-university" placeholder="e.g. University of Dhaka">
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <input type="text" id="field-department" placeholder="e.g. CSE, BBA">
+            </div>
+            <div class="form-group">
+              <label>Batch Year</label>
+              <input type="number" id="field-batch" placeholder="e.g. 2025">
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" id="field-phone" placeholder="+880 1XXX-XXXXXX">
+            </div>
+            <div class="form-group full">
+              <label>Address</label>
+              <textarea id="field-address" rows="3" placeholder="Your current address"></textarea>
+            </div>
+            <div class="form-group full">
+              <label>Bio</label>
+              <textarea id="field-bio" rows="4" placeholder="Write a short bio about yourself..."></textarea>
+            </div>
+            <div class="form-group full">
+              <label>Expertise / Skills</label>
+              <input type="text" id="field-expertise" placeholder="e.g. Web Dev, AI, Marketing">
+            </div>
+            <div class="form-group full">
+              <label>📄 NID Certificate</label>
+              <input type="file" id="nid-cert-input" accept="image/*,application/pdf" onchange="handleCertUpload(this,'nid')">
+              <div id="nid-cert-preview" style="margin-top:8px;"></div>
+            </div>
+            <div class="form-group full">
+              <label>🎓 Academic Certificate</label>
+              <input type="file" id="academic-cert-input" accept="image/*,application/pdf" onchange="handleCertUpload(this,'academic')">
+              <div id="academic-cert-preview" style="margin-top:8px;"></div>
+            </div>
+          </div>
+
+          <div class="edit-footer">
+            <button class="btn-primary" id="request-edit-btn"
+              style="background:rgba(20,184,166,0.1); color:var(--primary); border:1px solid var(--primary);">
+              🔓 Request to Edit Profile
+            </button>
+            <button class="btn-primary" id="save-btn">
+              💾 Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/student-profile.js"></script>
+</body>
+</html>

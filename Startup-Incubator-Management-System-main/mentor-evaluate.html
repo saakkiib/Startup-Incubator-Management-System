@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluate Startup — IncubatorX Mentor</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div style="margin-bottom:20px;">
+          <button class="btn secondary-btn" style="margin-top:0; padding:8px 16px;" onclick="window.location.href='mentor-assigned.html'">← Back to Assigned</button>
+        </div>
+
+        <h1 style="margin-bottom:6px;">📝 Evaluate Startup</h1>
+        <p class="text-muted" id="startup-label" style="margin-bottom:28px;">Loading startup info…</p>
+
+        <!-- Startup selector if none pre-selected -->
+        <div id="startup-selector" style="display:none; margin-bottom:24px;">
+          <div class="form-group">
+            <label>Select Startup to Evaluate</label>
+            <select id="startup-select" class="form-control" onchange="onStartupSelect()">
+              <option value="">— Select a startup —</option>
+            </select>
+          </div>
+        </div>
+
+        <form id="evaluation-form" onsubmit="handleSubmit(event)">
+          <!-- Score Section -->
+          <div class="form-section">
+            <div class="form-section-title">📊 Scores (0 – 100)</div>
+            <div class="score-grid">
+              <div class="score-item">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Technical Score</label>
+                  <input type="number" id="tech-score" class="form-control" min="0" max="100" placeholder="0–100" required oninput="autoCalc()">
+                </div>
+              </div>
+              <div class="score-item">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Market Score</label>
+                  <input type="number" id="market-score" class="form-control" min="0" max="100" placeholder="0–100" required oninput="autoCalc()">
+                </div>
+              </div>
+              <div class="score-item">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label>Financial Score</label>
+                  <input type="number" id="financial-score" class="form-control" min="0" max="100" placeholder="0–100" required oninput="autoCalc()">
+                </div>
+              </div>
+              <div class="score-item" style="background:rgba(20,184,166,0.08); border-color:var(--primary);">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label style="color:var(--primary);">Overall Score (auto)</label>
+                  <input type="number" id="overall-score" class="form-control" min="0" max="100" placeholder="Auto-calculated" style="color:var(--primary); font-weight:700;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feedback Section -->
+          <div class="form-section">
+            <div class="form-section-title">💬 Feedback</div>
+            <div class="form-group">
+              <label>Technical Feedback</label>
+              <textarea id="tech-feedback" class="form-control" placeholder="Comment on technology, product roadmap, team capabilities…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Market Feedback</label>
+              <textarea id="market-feedback" class="form-control" placeholder="Comment on market size, competition, go-to-market strategy…"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Financial Feedback</label>
+              <textarea id="financial-feedback" class="form-control" placeholder="Comment on revenue model, burn rate, funding needs…"></textarea>
+            </div>
+          </div>
+
+          <!-- Recommendation -->
+          <div class="form-section">
+            <div class="form-section-title">✅ Final Recommendation</div>
+            <div class="form-group">
+              <label>Recommendation</label>
+              <input type="text" id="recommendation" class="form-control" placeholder="e.g. Strong Buy / Fund" required>
+              <div class="chips-row">
+                <span class="chip" onclick="setRec(this)">Strong Buy / Fund</span>
+                <span class="chip" onclick="setRec(this)">Fund with Conditions</span>
+                <span class="chip" onclick="setRec(this)">Needs Improvement</span>
+                <span class="chip" onclick="setRec(this)">Hold — Revisit Later</span>
+                <span class="chip" onclick="setRec(this)">Reject</span>
+              </div>
+            </div>
+          </div>
+
+          <p id="form-error" class="error-msg" style="display:none; margin-bottom:16px;"></p>
+          <button type="submit" class="btn" id="submit-btn" style="width:100%; margin-top:0; padding:16px; font-size:1.1rem; background:var(--primary); color:white; border-radius:14px;">
+            Submit Evaluation
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="modal hidden">
+    <div class="modal-content glass" style="max-width:420px; text-align:center;">
+      <div style="font-size:4rem; margin-bottom:16px;">✅</div>
+      <h2 style="color:var(--primary); margin-bottom:10px;">Evaluation Submitted!</h2>
+      <p style="color:#64748b; margin-bottom:24px;">Your feedback has been recorded successfully.</p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-assigned.html'">Back to Assigned</button>
+        <button class="btn secondary-btn" style="margin-top:0;" onclick="window.location.href='mentor-submitted-evaluations.html'">View My Evaluations</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    const user = requireRole('MENTOR');
+    const { id: preSelectedId, name: preSelectedName } = getSelectedStartup();
+    let currentStartupId = preSelectedId;
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('mentor-evaluate.html');
+
+      if (preSelectedId) {
+        document.getElementById('startup-label').textContent = `Evaluating: ${preSelectedName}`;
+      } else {
+        // Show selector if no startup pre-selected
+        document.getElementById('startup-label').textContent = 'Select a startup below to evaluate';
+        document.getElementById('startup-selector').style.display = 'block';
+
+        fetchMentorAssignments(user.id).then(data => {
+          const select = document.getElementById('startup-select');
+          data.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a.startup?.id;
+            opt.textContent = a.startup?.name || `Startup #${a.startup?.id}`;
+            select.appendChild(opt);
+          });
+        }).catch(() => {});
+      }
+    }
+
+    function onStartupSelect() {
+      currentStartupId = document.getElementById('startup-select').value || null;
+    }
+
+    function autoCalc() {
+      const t = parseFloat(document.getElementById('tech-score').value)     || 0;
+      const m = parseFloat(document.getElementById('market-score').value)   || 0;
+      const f = parseFloat(document.getElementById('financial-score').value)|| 0;
+      if (t || m || f) {
+        const count = (t > 0 ? 1 : 0) + (m > 0 ? 1 : 0) + (f > 0 ? 1 : 0);
+        document.getElementById('overall-score').value = count > 0 ? Math.round((t + m + f) / count) : '';
+      }
+    }
+
+    function setRec(el) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('recommendation').value = el.textContent;
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const errorEl = document.getElementById('form-error');
+
+      if (!currentStartupId) {
+        errorEl.textContent = 'Please select a startup to evaluate.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      errorEl.style.display = 'none';
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
+      try {
+        await submitEvaluation({
+          startupId:        parseInt(currentStartupId),
+          mentorId:         user.id,
+          technicalScore:   parseInt(document.getElementById('tech-score').value) || null,
+          marketScore:      parseInt(document.getElementById('market-score').value) || null,
+          financialScore:   parseInt(document.getElementById('financial-score').value) || null,
+          overallScore:     parseInt(document.getElementById('overall-score').value) || null,
+          technicalFeedback:  document.getElementById('tech-feedback').value,
+          marketFeedback:     document.getElementById('market-feedback').value,
+          financialFeedback:  document.getElementById('financial-feedback').value,
+          recommendation:   document.getElementById('recommendation').value,
+        });
+        document.getElementById('success-modal').classList.remove('hidden');
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Submit Evaluation';
+      }
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

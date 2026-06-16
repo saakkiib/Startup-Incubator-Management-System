@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Details – Investor | IncubatorX</title>
+    <meta name="description" content="Full details, metrics, mentor evaluations, and pitch documents for a startup.">
+    <link rel="stylesheet" href="css/investor.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="inv-navbar">
+    <a class="brand" href="dashboard-investor.html">IncubatorX</a>
+    <div class="nav-right">
+        <div class="user-info">
+            <span id="nav-user-name">Investor</span>
+            <div class="avatar" id="nav-avatar">IV</div>
+        </div>
+        <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="inv-layout">
+    <!-- Sidebar -->
+    <aside class="inv-sidebar">
+        <h3>Investor Panel</h3>
+        <ul>
+            <li onclick="location.href='dashboard-investor.html'">📊 Dashboard Overview</li>
+            <li onclick="location.href='browse-startups-investor.html'">🔍 Browse Startups</li>
+            <li class="active" onclick="location.href='investor-startup-details.html'">📋 Startup Details</li>
+            <li onclick="location.href='investor-funding.html'">💰 Funding Page</li>
+            <li onclick="location.href='investor-history.html'">📜 Investment History</li>
+            <li onclick="location.href='investor-notifications.html'">🔔 Notifications</li>
+            <li onclick="location.href='investor-profile.html'">👤 Profile</li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="inv-main">
+        <div class="inv-card">
+            <!-- Back Button -->
+            <button class="btn btn-ghost btn-sm" style="margin-bottom:22px; border-radius:9999px;"
+                    onclick="location.href='browse-startups-investor.html'">
+                ← Back to Browse Startups
+            </button>
+
+            <!-- Header -->
+            <div class="startup-detail-header" id="startup-header">
+                <div class="loading-state"><div class="spinner"></div></div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="stats-grid" id="metrics-grid"></div>
+
+            <!-- Description -->
+            <h3 class="section-title">About the Startup</h3>
+            <p id="startup-description" class="text-muted" style="line-height:1.8; font-size:1.05rem;"></p>
+
+            <!-- Mentor Information -->
+            <h3 class="section-title">Mentor Information</h3>
+            <div id="mentor-section"></div>
+
+            <!-- Mentor Evaluations -->
+            <h3 class="section-title">Mentor Evaluation</h3>
+            <div id="evaluation-section"></div>
+
+            <!-- Pitch Documents -->
+            <h3 class="section-title">Pitch Documents</h3>
+            <div id="pitch-docs" style="margin-bottom:36px;"></div>
+
+            <!-- Actions -->
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="openInvestModal()" id="invest-btn">
+                    💰 Make Investment
+                </button>
+                <button class="btn btn-outline" onclick="contactFounder()">
+                    ✉️ Contact Founder
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Investment Modal -->
+<div id="invest-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2 style="font-size:1.4rem; font-weight:700;">Invest in <span id="modal-startup-name"></span></h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <p class="text-muted" style="margin-bottom:20px;">Enter your investment details below.</p>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Investment Amount (USD)</label>
+                <input type="number" id="invest-amount" class="inv-input" placeholder="50000" value="50000">
+            </div>
+            <div class="form-group">
+                <label>Equity Percentage (%)</label>
+                <input type="number" id="invest-equity" class="inv-input" step="0.1" placeholder="5.5" value="5.5">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="flex:1;" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" style="flex:1;" onclick="submitInvestment()">Confirm Investment</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/investor-startup-details.js?v=3"></script>
+</body>
+</html>

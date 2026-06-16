@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - IncubatorX</title>
+  <link rel="stylesheet" href="css/entrepreneur.css">
+  <script src="js/auth-guard.js"></script>
+</head>
+<body>
+  <header class="navbar">
+    <h2 onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="nav-avatar" style="width:38px;height:38px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">JS</div>
+        <span id="nav-user-name" style="font-weight:600;">User</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-links">
+        <li id="sidebar-dashboard"><span>📊</span> Dashboard</li>
+        <li onclick="window.location.href='admin-manage-users.html'"><span>👥</span> Manage Users</li>
+        <li onclick="window.location.href='admin-manage-startups.html'"><span>🏠</span> Manage Startups</li>
+        <li onclick="window.location.href='admin-assign-mentors.html'"><span>👨‍🏫</span> Assign Mentors</li>
+        <li onclick="window.location.href='admin-view-evaluations.html'"><span>📝</span> View Evaluations</li>
+        <li onclick="window.location.href='admin-funding-records.html'"><span>💰</span> Funding Records</li>
+        <li onclick="window.location.href='admin-notifications.html'"><span>🔔</span> Notifications</li>
+        <li class="active"><span>👤</span>Profile</li>
+        <li onclick="handleLogout()" style="margin-top:20px; color:#ef4444;"><span>🚪</span> Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box">
+        <div class="profile-header">
+          <div class="profile-photo-container">
+            <div class="profile-photo" id="profile-photo-display">👤</div>
+            <div class="change-photo-btn" onclick="document.getElementById('photo-input').click()" title="Change Photo">✏️</div>
+            <input type="file" id="photo-input" accept="image/*" style="display:none;">
+          </div>
+          <div class="profile-info">
+            <h1 id="profile-name">Loading...</h1>
+            <p id="profile-email" style="color:#64748b;">—</p>
+            <div id="edit-status-badge" class="status-badge-profile" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid" id="profile-stats" style="display:flex; flex-wrap:wrap; gap:20px;">
+          <div class="info-card" style="text-align:center; flex:1; min-width:160px;">
+            <div class="stat-number" id="stat-role">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Role</div>
+          </div>
+          <div class="info-card" style="text-align:center; flex:1; min-width:160px;">
+            <div class="stat-number" id="stat-phone" style="font-size:1.8rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Phone</div>
+          </div>
+          <div class="info-card" style="text-align:center; flex:1; min-width:160px;">
+            <div class="stat-number" id="stat-education" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Education</div>
+          </div>
+          <!-- Student stats -->
+          <div class="info-card student-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-university" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">University</div>
+          </div>
+          <div class="info-card student-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-department" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Department</div>
+          </div>
+          <div class="info-card student-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-batch" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Batch</div>
+          </div>
+          <!-- Mentor stats -->
+          <div class="info-card mentor-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-exp-area" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Expertise Area</div>
+          </div>
+          <div class="info-card mentor-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-org" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Organization</div>
+          </div>
+          <div class="info-card mentor-stat" style="text-align:center; flex:1; min-width:160px; display:none;">
+            <div class="stat-number" id="stat-years-exp" style="font-size:1.4rem;">—</div>
+            <div style="color:#64748b; font-size:0.9rem;">Experience</div>
+          </div>
+        </div>
+
+        <div id="lock-banner" style="display:none; margin-bottom:25px; padding:16px 20px;
+             background:rgba(245,158,11,0.1); border:1px solid #f59e0b; border-radius:12px; color:#92400e;">
+          🔒 <strong>Profile editing is currently locked.</strong> A request to unlock has been sent to the admin.
+        </div>
+
+        <div id="approved-banner" style="display:none; margin-bottom:25px; padding:16px 20px;
+             background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:12px; color:#065f46;">
+          ✅ Your edit request has been <strong>approved</strong>. You may update your profile below.
+        </div>
+
+        <div id="edit-section">
+          <h3 style="margin-bottom:20px; color:var(--primary);">Profile Information</h3>
+          <div class="edit-form-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="field-name" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="field-email" disabled>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="text" id="field-phone" placeholder="+880 1XXX-XXXXXX">
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              <input type="text" id="field-role" disabled>
+            </div>
+            <div class="form-group">
+              <label>Educational Qualification</label>
+              <input type="text" id="field-education" placeholder="e.g. BSc in Computer Science, MBA">
+            </div>
+            <div class="form-group">
+              <label>Expertise / Skills</label>
+              <input type="text" id="field-expertise" placeholder="e.g. Web Dev, AI, Marketing">
+            </div>
+            <div class="form-group full">
+              <label>Bio</label>
+              <textarea id="field-bio" rows="4" placeholder="Write a short bio about yourself..."></textarea>
+            </div>
+            <!-- Role-specific fields: Student -->
+            <div id="student-fields" style="display:none;grid-column:1/-1;">
+              <h4 style="color:var(--primary);margin:16px 0 12px;font-size:0.95rem;">🎓 Student Details</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                  <label>University</label>
+                  <input type="text" id="field-university" placeholder="e.g. University of Dhaka">
+                </div>
+                <div class="form-group">
+                  <label>Department</label>
+                  <input type="text" id="field-department" placeholder="e.g. CSE, BBA">
+                </div>
+                <div class="form-group">
+                  <label>Batch Year</label>
+                  <input type="number" id="field-batch" placeholder="e.g. 2025">
+                </div>
+              </div>
+            </div>
+            <!-- Role-specific fields: Mentor -->
+            <div id="mentor-fields" style="display:none;grid-column:1/-1;">
+              <h4 style="color:var(--primary);margin:16px 0 12px;font-size:0.95rem;">👨‍🏫 Mentor Details</h4>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="form-group">
+                  <label>Expertise Area</label>
+                  <input type="text" id="field-expertise-area" placeholder="e.g. AI/ML, Finance, HealthTech">
+                </div>
+                <div class="form-group">
+                  <label>Organization</label>
+                  <input type="text" id="field-organization" placeholder="Current company">
+                </div>
+                <div class="form-group">
+                  <label>Years of Experience</label>
+                  <input type="number" id="field-years-exp" placeholder="e.g. 5">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="edit-footer">
+            <button class="btn-primary" id="request-edit-btn"
+              style="background:rgba(20,184,166,0.1); color:var(--primary); border:1px solid var(--primary); display:none;">
+              🔓 Request to Edit Profile
+            </button>
+            <button class="btn-primary" id="save-btn">💾 Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script>
+    let profileData = null;
+
+    function showToast(msg, type) {
+      const existing = document.querySelector('.custom-toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = 'custom-toast';
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position: 'fixed', top: '24px', right: '24px', padding: '16px 28px',
+        borderRadius: '14px', fontWeight: '600', fontSize: '0.9rem', zIndex: '9999',
+        background: type === 'error' ? '#ef4444' : '#10b981', color: 'white',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+        animation: 'slideIn 0.35s ease'
+      });
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const stored = localStorage.getItem('user');
+      const user = stored ? JSON.parse(stored) : null;
+      if (!user) { window.location.href = 'auth.html'; return; }
+
+      const dashMap = { ADMIN:'dashboard-admin.html', MENTOR:'dashboard-mentor.html', STUDENT:'dashboard-entrepreneur.html', INVESTOR:'dashboard-investor.html' };
+      const dashUrl = dashMap[(user.role || '').toUpperCase()] || 'index.html';
+      document.getElementById('sidebar-dashboard').onclick = () => window.location.href = dashUrl;
+
+      populateNavbar(user);
+      await loadProfile(user);
+    });
+
+    async function loadProfile(user) {
+      try {
+        const res = await fetch(`http://localhost:8085/api/users/${user.id}`);
+        if (!res.ok) throw new Error('Failed to load');
+        profileData = await res.json();
+        populateNavbar(profileData);
+      } catch (err) {
+        console.error(err);
+        profileData = user;
+      }
+      renderProfile(profileData);
+    }
+
+    function renderProfile(data) {
+      const name = data.fullName || data.username || 'User';
+      document.getElementById('profile-name').textContent = name;
+      document.getElementById('profile-email').textContent = data.email || '—';
+      document.getElementById('stat-role').textContent = data.role || '—';
+      document.getElementById('stat-phone').textContent = data.phone || '—';
+      document.getElementById('stat-education').textContent = data.education || '—';
+      document.getElementById('stat-university').textContent = data.university || '—';
+      document.getElementById('stat-department').textContent = data.department || '—';
+      document.getElementById('stat-batch').textContent = data.batchYear || '—';
+      document.getElementById('stat-exp-area').textContent = data.expertiseArea || '—';
+      document.getElementById('stat-org').textContent = data.organization || '—';
+      document.getElementById('stat-years-exp').textContent = data.yearsExperience || '—';
+
+      const role = (data.role || '').toUpperCase();
+      document.querySelectorAll('.student-stat').forEach(el => el.style.display = role === 'STUDENT' ? '' : 'none');
+      document.querySelectorAll('.mentor-stat').forEach(el => el.style.display = role === 'MENTOR' ? '' : 'none');
+
+      if (data.photo) {
+        const container = document.getElementById('profile-photo-display');
+        container.innerHTML = `<img src="${data.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      }
+
+      document.getElementById('field-name').value = data.fullName || '';
+      document.getElementById('field-email').value = data.email;
+      document.getElementById('field-phone').value = data.phone || '';
+      document.getElementById('field-role').value = data.role || '';
+      document.getElementById('field-education').value = data.education || '';
+      document.getElementById('field-expertise').value = data.expertise || '';
+      document.getElementById('field-bio').value = data.bio || '';
+      document.getElementById('field-university').value = data.university || '';
+      document.getElementById('field-department').value = data.department || '';
+      document.getElementById('field-batch').value = data.batchYear || '';
+      document.getElementById('field-expertise-area').value = data.expertiseArea || '';
+      document.getElementById('field-organization').value = data.organization || '';
+      document.getElementById('field-years-exp').value = data.yearsExperience || '';
+
+      // Show role-specific fields (role already declared above)
+      document.getElementById('student-fields').style.display = role === 'STUDENT' ? 'block' : 'none';
+      document.getElementById('mentor-fields').style.display = role === 'MENTOR' ? 'block' : 'none';
+
+      const status = (data.editRequestStatus || 'none').toLowerCase();
+      const hasData = !!(data.phone || data.education || data.bio);
+      let canEdit = false;
+
+      if (!hasData) {
+        canEdit = true;
+      } else if (status === 'approved') {
+        canEdit = true;
+      }
+
+      const fields = document.querySelectorAll('#edit-section input, #edit-section textarea');
+      fields.forEach(f => f.disabled = !canEdit);
+
+      const lockBanner = document.getElementById('lock-banner');
+      const approvedBanner = document.getElementById('approved-banner');
+      const requestBtn = document.getElementById('request-edit-btn');
+      const saveBtn = document.getElementById('save-btn');
+
+      lockBanner.style.display = 'none';
+      approvedBanner.style.display = 'none';
+
+      if (canEdit) {
+        saveBtn.style.display = 'inline-block';
+        requestBtn.style.display = 'none';
+        if (hasData && status === 'approved') {
+          approvedBanner.style.display = 'block';
+        }
+      } else {
+        saveBtn.style.display = 'none';
+        requestBtn.style.display = 'inline-block';
+        if (status === 'pending') {
+          requestBtn.disabled = true;
+          requestBtn.textContent = '⏳ Edit Request Pending...';
+          lockBanner.style.display = 'block';
+        } else {
+          requestBtn.disabled = false;
+          requestBtn.textContent = '🔓 Request to Edit Profile';
+        }
+      }
+
+      const photoDisplay = document.getElementById('profile-photo-display');
+      let photoData = data.photo || '';
+      if (photoData) {
+        photoDisplay.innerHTML = `<img src="${photoData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+      }
+
+      document.getElementById('photo-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          photoData = ev.target.result;
+          photoDisplay.innerHTML = `<img src="${photoData}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById('request-edit-btn').onclick = async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Sending request...';
+        try {
+          const res = await fetch(`http://localhost:8085/api/users/${data.id}/request-edit`, { method: 'PUT' });
+          if (res.ok) {
+            btn.textContent = '⏳ Edit Request Pending...';
+            document.getElementById('lock-banner').style.display = 'block';
+            showToast('Edit request sent to admin!');
+          } else {
+            btn.disabled = false;
+            btn.textContent = '🔓 Request to Edit Profile';
+            showToast('Failed to send request', 'error');
+          }
+        } catch (err) {
+          console.error(err);
+          btn.disabled = false;
+          btn.textContent = '🔓 Request to Edit Profile';
+          showToast('Connection failed', 'error');
+        }
+      };
+
+      document.getElementById('save-btn').onclick = async function() {
+        const btn = this;
+        btn.disabled = true;
+        btn.textContent = '⏳ Saving...';
+
+        try {
+          const payload = {
+            fullName:  document.getElementById('field-name').value,
+            phone:     document.getElementById('field-phone').value,
+            photo:     photoData,
+            education: document.getElementById('field-education').value,
+            expertise: document.getElementById('field-expertise').value,
+            bio:       document.getElementById('field-bio').value,
+            university: document.getElementById('field-university').value,
+            department: document.getElementById('field-department').value,
+            batchYear:  parseInt(document.getElementById('field-batch').value) || 0,
+            expertiseArea: document.getElementById('field-expertise-area').value,
+            organization: document.getElementById('field-organization').value,
+            yearsExperience: parseInt(document.getElementById('field-years-exp').value) || 0
+          };
+
+          const res = await fetch(`http://localhost:8085/api/users/${data.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            const saved = await res.json();
+            const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            Object.assign(storedUser, { fullName: saved.fullName, photo: saved.photo, phone: saved.phone, education: saved.education, expertise: saved.expertise, bio: saved.bio, university: saved.university, department: saved.department, batchYear: saved.batchYear, expertiseArea: saved.expertiseArea, organization: saved.organization, yearsExperience: saved.yearsExperience });
+            localStorage.setItem('user', JSON.stringify(storedUser));
+            showToast('Profile updated! It has been locked. To edit again, request admin approval.');
+            setTimeout(() => window.location.reload(), 1000);
+          } else {
+            const errText = await res.text();
+            showToast('Failed: ' + errText, 'error');
+            btn.disabled = false;
+            btn.textContent = '💾 Save Changes';
+          }
+        } catch (e) {
+          showToast('Connection failed', 'error');
+          btn.disabled = false;
+          btn.textContent = '💾 Save Changes';
+        }
+      };
+    }
+  </script>
+</body>
+</html>

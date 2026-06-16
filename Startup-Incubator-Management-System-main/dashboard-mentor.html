@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentor Dashboard — IncubatorX</title>
+  <meta name="description" content="Mentor control panel for IncubatorX Startup Incubator Management System.">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <!-- Navbar -->
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 style="cursor:pointer;" onclick="window.location.href='index.html'">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-box glass">
+        <!-- Stats Grid -->
+        <div class="stat-grid" id="stats-grid">
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:60px; border-radius:8px;"></div></div>
+        </div>
+
+        <!-- Assigned Startups -->
+        <div class="section-header">
+          <h3>📋 My Assigned Startups</h3>
+          <button class="btn" style="margin-top:0; padding:8px 18px;" onclick="window.location.href='mentor-assigned.html'">View All</button>
+        </div>
+        <div id="assigned-list">
+          <div class="skeleton" style="height:80px; border-radius:12px; margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:80px; border-radius:12px; margin-bottom:10px;"></div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" style="margin-top:30px;">
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-assigned.html'">📋 Assigned Startups</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-evaluate.html'">📝 Evaluate Startup</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-submitted-evaluations.html'">📑 My Evaluations</button>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-notifications.html'">🔔 Notifications</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    const user = requireRole('MENTOR');
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('dashboard-mentor.html');
+
+      (async () => {
+        const stats = await loadMentorStats(user.id);
+        if (stats) {
+          document.getElementById('stats-grid').innerHTML = `
+            <div class="stat-card">
+              <div class="stat-number">${stats.assignments.length}</div>
+              <div class="stat-label">Assigned Startups</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${stats.evaluations.length}</div>
+              <div class="stat-label">Evaluations Done</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">${stats.unread}</div>
+              <div class="stat-label">Unread Notifications</div>
+            </div>
+          `;
+
+          const list = stats.assignments.slice(0, 5);
+          document.getElementById('assigned-list').innerHTML = list.length
+            ? list.map(a => {
+                const s = a.startup || {};
+                const progress = s.status === 'approved' ? 75 : (s.status === 'rejected' ? 20 : 40);
+                return `
+                  <div class="activity-card" onclick="selectStartup(${s.id}, '${(s.name || '').replace(/'/g,"\\'")}'); window.location.href='mentor-startup-details.html'">
+                    <div class="activity-icon">🚀</div>
+                    <div class="activity-body">
+                      <h4>${s.name || 'Unnamed Startup'}</h4>
+                      <p>${s.industry || 'Industry N/A'} · ${s.stage || 'Stage N/A'}</p>
+                      <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" style="width:${progress}%"></div>
+                      </div>
+                    </div>
+                    <div>${mentorGetStatusBadge(s.status)}</div>
+                  </div>`;
+              }).join('')
+            : '<div class="empty-state"><div class="empty-icon">📭</div><h3>No Startups Assigned</h3><p>The admin hasn\'t assigned any startups to you yet.</p></div>';
+        } else {
+          document.getElementById('stats-grid').innerHTML = '<p class="error-msg">Could not load data. Is the backend running?</p>';
+        }
+      })();
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => {
+      const dd = document.getElementById('dropdown');
+      if (dd) dd.style.display = 'none';
+    });
+  </script>
+</body>
+</html>

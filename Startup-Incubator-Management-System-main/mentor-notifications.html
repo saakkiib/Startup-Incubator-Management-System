@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications — IncubatorX Mentor</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>🔔 Notifications</h1>
+          <button class="btn" style="margin-top:0;" onclick="markAllRead()">Mark All Read</button>
+        </div>
+
+        <div id="notif-list">
+          <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:80px;border-radius:12px;margin-bottom:12px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    let notifications = [];
+    const user = requireRole('MENTOR');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('mentor-notifications.html');
+
+      fetchMentorNotifications(user.id).then(data => {
+        notifications = data;
+        renderNotifications(notifications);
+      }).catch(err => {
+        document.getElementById('notif-list').innerHTML = `<p class="error-msg">${err.message}</p>`;
+      });
+    }
+
+    function renderNotifications(list) {
+      const el = document.getElementById('notif-list');
+      el.innerHTML = list.length
+        ? list.map(n => `
+            <div class="activity-card" id="notif-${n.id}" style="${!n.read ? 'border-left:4px solid var(--primary);' : 'opacity:0.7;'}" onclick="handleRead(${n.id})">
+              <div class="activity-icon">${getIcon(n.type)}</div>
+              <div class="activity-body">
+                <h4>${n.title}</h4>
+                <p>${n.message}</p>
+              </div>
+              <div style="text-align:right;">
+                <div class="activity-time">${mentorFormatDate(n.createdAt)}</div>
+                ${!n.read ? '<span class="status-badge status-pending" style="font-size:0.7rem; margin-top:6px; display:inline-block;">Unread</span>' : ''}
+              </div>
+            </div>`)
+          .join('')
+        : '<div class="empty-state"><div class="empty-icon">🔔</div><h3>No Notifications</h3><p>You\'re all caught up!</p></div>';
+    }
+
+    function getIcon(type) {
+      const icons = { approval:'✅', funding:'💰', assignment:'👨‍🏫', evaluation:'📝', default:'🔔' };
+      return icons[type] || icons.default;
+    }
+
+    async function handleRead(id) {
+      const n = notifications.find(n => n.id === id);
+      if (!n || n.read) return;
+      await markNotifRead(id).catch(() => {});
+      n.read = true;
+      renderNotifications(notifications);
+    }
+
+    async function markAllRead() {
+      const unread = notifications.filter(n => !n.read);
+      await Promise.all(unread.map(n => markNotifRead(n.id)));
+      notifications.forEach(n => n.read = true);
+      renderNotifications(notifications);
+      showToast('All notifications marked as read.', 'success');
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Funding Records — IncubatorX Admin</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">AD</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Admin Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>💰 Funding Records</h1>
+          <input type="text" id="search-input" class="search-box" placeholder="Search by startup or investor…" oninput="filterFunding()">
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stat-grid" id="summary-cards" style="margin-bottom:30px;">
+          <div class="stat-card"><div class="skeleton" style="height:50px;border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:50px;border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:50px;border-radius:8px;"></div></div>
+        </div>
+
+        <div id="loading-state">
+          <div class="skeleton" style="height:55px;border-radius:8px;margin-bottom:10px;"></div>
+          <div class="skeleton" style="height:55px;border-radius:8px;margin-bottom:10px;"></div>
+        </div>
+
+        <div id="table-wrapper" style="display:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Startup</th><th>Investor</th>
+                <th>Amount</th><th>Equity %</th><th>Type</th><th>Status</th><th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="funding-body"></tbody>
+          </table>
+          <div id="empty-state" class="empty-state" style="display:none;">
+            <div class="empty-icon">💰</div>
+            <h3>No Funding Records</h3>
+            <p>No investment transactions have been recorded yet.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allFunding = [];
+    const user = requireRole('ADMIN');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getAdminSidebar('admin-funding-records.html');
+
+      fetchAllFunding().then(data => {
+        allFunding = data;
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('table-wrapper').style.display = 'block';
+
+        // Summary
+        const totalAmt  = allFunding.reduce((s, f) => s + parseFloat(f.amount || 0), 0);
+        const completed = allFunding.filter(f => f.status === 'completed').length;
+        document.getElementById('summary-cards').innerHTML = `
+          <div class="stat-card"><div class="stat-number">${allFunding.length}</div><div class="stat-label">Total Deals</div></div>
+          <div class="stat-card"><div class="stat-number">${formatCurrency(totalAmt)}</div><div class="stat-label">Total Invested</div></div>
+          <div class="stat-card"><div class="stat-number">${completed}</div><div class="stat-label">Completed Deals</div></div>
+        `;
+
+        renderFunding(allFunding);
+      }).catch(err => {
+        document.getElementById('loading-state').innerHTML = `<p class="error-msg">${err.message}</p>`;
+        document.getElementById('summary-cards').innerHTML = '';
+      });
+    }
+
+    function renderFunding(list) {
+      const tbody = document.getElementById('funding-body');
+      const empty = document.getElementById('empty-state');
+      if (!list.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      tbody.innerHTML = list.map((f, i) => `
+        <tr>
+          <td>${i+1}</td>
+          <td><strong>${f.startup?.name || '—'}</strong></td>
+          <td>${f.investor?.fullName || f.investor?.username || '—'}</td>
+          <td style="color:var(--success); font-weight:700;">${formatCurrency(f.amount)}</td>
+          <td>${f.equityPercentage ? f.equityPercentage + '%' : '—'}</td>
+          <td><span class="role-badge role-mentor">${f.fundingType || '—'}</span></td>
+          <td>${getStatusBadge(f.status)}</td>
+          <td>${formatDate(f.fundedAt)}</td>
+        </tr>`).join('');
+    }
+
+    function filterFunding() {
+      const term = document.getElementById('search-input').value.toLowerCase();
+      renderFunding(allFunding.filter(f =>
+        (f.startup?.name || '').toLowerCase().includes(term) ||
+        (f.investor?.fullName || '').toLowerCase().includes(term) ||
+        (f.fundingType || '').toLowerCase().includes(term)
+      ));
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

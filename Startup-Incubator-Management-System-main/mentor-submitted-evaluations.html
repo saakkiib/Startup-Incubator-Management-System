@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submitted Evaluations — IncubatorX Mentor</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/admin-mentor.css">
+  <script src="js/theme.js"></script>
+</head>
+<body id="body">
+
+  <header class="navbar" style="background:var(--glass-card); backdrop-filter:blur(15px); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100;">
+    <h2 onclick="window.location.href='index.html'" style="cursor:pointer;">IncubatorX</h2>
+    <div class="right">
+      <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+      <div class="profile-container">
+        <div class="profile" onclick="toggleDropdown(event)" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+          <span id="nav-avatar" style="background:var(--primary); color:white; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;">MK</span>
+          <span id="nav-user-name" style="font-weight:600;"></span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <p onclick="window.location.href='profile.html'">👤 Profile</p>
+          <p onclick="handleLogout()">🚪 Logout</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <aside class="sidebar glass">
+      <h3>Mentor Panel</h3>
+      <ul id="sidebar-nav"></ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-box glass">
+        <div class="page-header">
+          <h1>📑 Submitted Evaluations</h1>
+          <button class="btn" style="margin-top:0;" onclick="window.location.href='mentor-evaluate.html'">+ New Evaluation</button>
+        </div>
+
+        <!-- Summary -->
+        <div class="stat-grid" id="summary-cards" style="margin-bottom:28px;">
+          <div class="stat-card"><div class="skeleton" style="height:50px;border-radius:8px;"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:50px;border-radius:8px;"></div></div>
+        </div>
+
+        <div id="evals-container">
+          <div class="skeleton" style="height:130px;border-radius:14px;margin-bottom:14px;"></div>
+          <div class="skeleton" style="height:130px;border-radius:14px;margin-bottom:14px;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+  <script src="js/mentor.js"></script>
+  <script>
+    const user = requireRole('MENTOR');
+
+    if (user) {
+      populateNavbar(user);
+      document.getElementById('sidebar-nav').innerHTML = getMentorSidebar('mentor-submitted-evaluations.html');
+
+      fetchMentorEvaluations(user.id).then(data => {
+        const avg = data.length
+          ? Math.round(data.reduce((s, e) => s + (e.overallScore || 0), 0) / data.length)
+          : 0;
+
+        document.getElementById('summary-cards').innerHTML = `
+          <div class="stat-card"><div class="stat-number">${data.length}</div><div class="stat-label">Total Evaluations</div></div>
+          <div class="stat-card"><div class="stat-number">${avg}</div><div class="stat-label">Average Overall Score</div></div>
+        `;
+
+        const el = document.getElementById('evals-container');
+        el.innerHTML = data.length
+          ? data.map(e => `
+              <div class="project-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+                  <div>
+                    <h3 style="margin-bottom:4px;">${e.startup?.name || 'Unknown Startup'}</h3>
+                    <small class="text-muted">${mentorFormatDate(e.evaluatedAt)}</small>
+                  </div>
+                  <strong style="color:var(--primary); font-size:1.6rem;">${e.overallScore ?? '—'}<small style="font-size:0.7rem; color:#64748b;">/100</small></strong>
+                </div>
+
+                <!-- Score bars -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:14px;">
+                  ${scoreBar('Technical', e.technicalScore)}
+                  ${scoreBar('Market',    e.marketScore)}
+                  ${scoreBar('Financial', e.financialScore)}
+                </div>
+
+                <div style="border-top:1px solid var(--border); padding-top:12px;">
+                  <strong style="font-size:0.85rem;">Recommendation:</strong>
+                  <span style="margin-left:8px; font-style:italic; color:var(--primary);">${e.recommendation || '—'}</span>
+                </div>
+              </div>`)
+          .join('')
+          : '<div class="empty-state"><div class="empty-icon">📑</div><h3>No Evaluations Yet</h3><p>Submit your first evaluation using the button above.</p></div>';
+      }).catch(err => {
+        document.getElementById('evals-container').innerHTML = `<p class="error-msg">${err.message}</p>`;
+        document.getElementById('summary-cards').innerHTML = '';
+      });
+    }
+
+    function scoreBar(label, score) {
+      return `
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.82rem; margin-bottom:4px;">
+            <span class="text-muted">${label}</span>
+            <strong>${score ?? '—'}</strong>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${score ?? 0}%"></div>
+          </div>
+        </div>`;
+    }
+
+    window.toggleDropdown = (e) => {
+      e && e.stopPropagation();
+      const dd = document.getElementById('dropdown');
+      dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
+    };
+    document.addEventListener('click', () => { const dd = document.getElementById('dropdown'); if (dd) dd.style.display = 'none'; });
+  </script>
+</body>
+</html>

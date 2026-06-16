@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment History – Investor | IncubatorX</title>
+    <meta name="description" content="Track all your past and active investments on IncubatorX.">
+    <link rel="stylesheet" href="css/investor.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="inv-navbar">
+    <a class="brand" href="dashboard-investor.html">IncubatorX</a>
+    <div class="nav-right">
+        <div class="user-info">
+            <span id="nav-user-name">Investor</span>
+            <div class="avatar" id="nav-avatar">IV</div>
+        </div>
+        <button id="theme-toggle" onclick="toggleTheme()">☀️</button>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
+    </div>
+</nav>
+
+<div class="inv-layout">
+    <!-- Sidebar -->
+    <aside class="inv-sidebar">
+        <h3>Investor Panel</h3>
+        <ul>
+            <li onclick="location.href='dashboard-investor.html'">📊 Dashboard Overview</li>
+            <li onclick="location.href='browse-startups-investor.html'">🔍 Browse Startups</li>
+            <li onclick="location.href='investor-startup-details.html'">📋 Startup Details</li>
+            <li onclick="location.href='investor-funding.html'">💰 Funding Page</li>
+            <li class="active" onclick="location.href='investor-history.html'">📜 Investment History</li>
+            <li onclick="location.href='investor-notifications.html'">🔔 Notifications</li>
+            <li onclick="location.href='investor-profile.html'">👤 Profile</li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="inv-main">
+        <div class="inv-card">
+            <div class="page-header">
+                <div>
+                    <h1>Investment History</h1>
+                    <p>Track all your past and active investments</p>
+                </div>
+                <button class="btn btn-primary" onclick="loadHistory()">🔄 Refresh</button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="stats-grid" id="summary-cards">
+                <div class="stat-card"><div class="spinner"></div></div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-bar">
+                <input type="text" id="search-input" class="inv-input" style="flex:1; min-width:200px;"
+                       placeholder="Search startup…" oninput="filterHistory()">
+                <select id="status-filter" class="inv-select" style="width:160px;" onchange="filterHistory()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+
+            <!-- Table -->
+            <div class="inv-table-wrap">
+                <table class="inv-table">
+                    <thead>
+                        <tr>
+                            <th>Startup</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Equity</th>
+                            <th>Status</th>
+                            <th>Current Value</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <tr>
+                            <td colspan="7" style="text-align:center; padding:60px;">
+                                <div class="spinner"></div>
+                                <p style="margin-top:14px; color:var(--muted);">Loading history…</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Investment Detail Modal -->
+<div id="investment-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modal-title" style="font-size:1.3rem; font-weight:700; color:var(--primary);"></h3>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modal-body" style="line-height:1.8;"></div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" style="flex:1;" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/investor-history.js"></script>
+</body>
+</html>
